@@ -7,9 +7,14 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-
+    ChessPiece.PieceType[][] board;
     public ChessBoard() {
-        
+        board = new ChessPiece.PieceType[8][8];
+        //Initializes pawns
+        for(int i = 0; i < 8; i++) {
+            board[1][i] = ChessPiece.PieceType.PAWN;
+            board[6][i] = ChessPiece.PieceType.PAWN;
+        }
     }
 
     /**
@@ -19,7 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        board[position.getRow()][position.getColumn()] = piece.getPieceType();
     }
 
     /**
