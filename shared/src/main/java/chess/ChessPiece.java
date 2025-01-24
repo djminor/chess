@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -44,6 +45,20 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return this.pieceType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType);
     }
 
     /**
@@ -89,8 +104,72 @@ public class ChessPiece {
         int moveDirection = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
         int row = position.getRow();
         int col = position.getColumn();
-        ChessPosition forward = new ChessPosition(col, row + moveDirection);
-        moves.add(new ChessMove(position, forward, getPieceType()));
+
+        // Single forward move
+        ChessPosition forward = new ChessPosition(row + moveDirection, col);
+        if (board.isPositionOutOfBounds(forward) && board.getPiece(forward) == null) {
+            // Add promotion if the pawn reaches the last row
+            if ((piece.getTeamColor() == ChessGame.TeamColor.BLACK && forward.getRow() == 1) ||
+                    (piece.getTeamColor() == ChessGame.TeamColor.WHITE && forward.getRow() == 8)) {
+                addPromotionMoves(position, forward, moves);
+            } else {
+                moves.add(new ChessMove(position, forward, null));
+            }
+        }
+
+        // Double forward move (only if the pawn is in its initial position)
+        if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && row == 2) ||
+                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && row == 7)) {
+            ChessPosition intermediate = new ChessPosition(row + moveDirection, col);  // Intermediate square
+            ChessPosition doubleForward = new ChessPosition(row + 2 * moveDirection, col);
+
+            // Ensure both the square two ahead and the intermediate square are clear
+            if (board.isPositionOutOfBounds(doubleForward) && board.getPiece(doubleForward) == null &&
+                    board.isPositionOutOfBounds(intermediate) && board.getPiece(intermediate) == null) {
+                moves.add(new ChessMove(position, doubleForward, null));
+            }
+        }
+
+        // Diagonal capture positions (both forward-left and forward-right)
+        if (moveDirection == -1) {
+            int [][] captureOffsets = {{1, -1}, {1, 1}};
+            for (int[] offset : captureOffsets) {
+                int rowOffset = offset[0];
+                int colOffset = offset[1];
+                ChessPosition capturePosition = new ChessPosition(row + rowOffset, col + colOffset);
+
+                // Make sure the position is within bounds
+                if (!board.isPositionOutOfBounds(capturePosition)) {
+                    ChessPiece targetPiece = board.getPiece(capturePosition);
+
+                    // Check if there is an opponent's piece to capture
+                    if (targetPiece != null && board.isOpponentPiece(capturePosition, piece)) {
+                        moves.add(new ChessMove(position, capturePosition, null));  // Regular capture
+                    }
+                }
+            }
+        } else {
+            int[][] captureOffsets = {{-1, -1}, {-1, 1}};  // Forward-left and forward-right diagonals
+            for (int[] offset : captureOffsets) {
+                int rowOffset = offset[0];
+                int colOffset = offset[1];
+                ChessPosition capturePosition = new ChessPosition(row + rowOffset, col + colOffset);
+
+                // Make sure the position is within bounds
+                if (!board.isPositionOutOfBounds(capturePosition)) {
+                    ChessPiece targetPiece = board.getPiece(capturePosition);
+
+                    // Check if there is an opponent's piece to capture
+                    if (targetPiece != null && board.isOpponentPiece(capturePosition, piece)) {
+                        moves.add(new ChessMove(position, capturePosition, null));  // Regular capture
+                    }
+                }
+            }
+        }
+    }
+
+    private void addPromotionMoves(ChessPosition from, ChessPosition to, Collection<ChessMove> moves) {
+        moves.add(new ChessMove(from, to, ChessPiece.PieceType.QUEEN));
     }
     private void calculateSlidingPieceMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves, int[][] directions) {
 

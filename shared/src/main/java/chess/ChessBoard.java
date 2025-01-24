@@ -34,12 +34,12 @@ public class ChessBoard {
 
     ChessPiece[][] board;
     public ChessBoard() {
-        board = new ChessPiece[8][8];
         initializeBoard();
 
     }
 
     public void initializeBoard() {
+        this.board = new ChessPiece[8][8];
         //Initialize pawns
         for(int i = 1; i <= 8; i++) {
             //white pawns
@@ -67,14 +67,14 @@ public class ChessBoard {
         }
 
         //Initialize white king
-        addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         //Initialize black king
-        addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
 
         //Initialize white queen
-        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
         //Initialize black queen
-        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
     }
 
     /**
@@ -103,7 +103,28 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        this.board = new ChessPiece[8][8];
         initializeBoard();
+        printBoard();
+    }
+    public boolean isPositionOutOfBounds(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        return row < 1 || row > 8 || col < 1 || col > 8;
+    }
+    public boolean isOpponentPiece(ChessPosition position, ChessPiece piece) {
+        if (position == null || piece == null) return false;
+        return board[position.getRow() - 1][position.getColumn() - 1].getTeamColor() != piece.getTeamColor();
+    }
+    public void printBoard() {
+        for (ChessPiece[] chessPieces : board) {
+            for (ChessPiece chessPiece : chessPieces) {
+                if (chessPiece == null) {
+                    System.out.print(" . ");
+                } else {
+                    System.out.print(" " + chessPiece.getPieceType() + " ");
+                }
+            }
+            System.out.println();
+        }
     }
 }
