@@ -157,10 +157,10 @@ public class ChessPiece {
             while (true) {
                 col += direction[0];
                 row += direction[1];
-
-                if (!board.isPositionOutOfBounds(position)) break;
-
                 ChessPosition newPosition = new ChessPosition(row, col);
+
+                if (board.isPositionOutOfBounds(newPosition)) break;
+
                 ChessPiece targetPiece = board.getPiece(newPosition);
 
                 if (targetPiece == null) {
@@ -183,11 +183,10 @@ public class ChessPiece {
             for (int[] move : knightMoves) {
                 int col = position.getColumn() + move[0];
                 int row = position.getRow() + move[1];
+                ChessPosition newPosition = new ChessPosition(row, col);
 
-                if (!board.isPositionOutOfBounds(position)) {
-                    ChessPosition newPosition = new ChessPosition(row, col);
+                if (!board.isPositionOutOfBounds(newPosition)) {
                     ChessPiece targetPiece = board.getPiece(newPosition);
-
                     if (targetPiece == null || targetPiece.getTeamColor() != piece.getTeamColor()) {
                         moves.add(new ChessMove(position, newPosition, null));
                     }
