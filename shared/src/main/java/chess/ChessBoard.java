@@ -20,13 +20,6 @@ public class ChessBoard {
     }
 
     @Override
-    public String toString() {
-        return "ChessBoard{" +
-                "board=" + Arrays.toString(board) +
-                '}';
-    }
-
-    @Override
     public int hashCode() {
         return Arrays.deepHashCode(board);
     }
@@ -104,7 +97,6 @@ public class ChessBoard {
      */
     public void resetBoard() {
         initializeBoard();
-        printBoard();
     }
     public boolean isPositionOutOfBounds(ChessPosition position) {
         int row = position.getRow();
@@ -114,17 +106,5 @@ public class ChessBoard {
     public boolean isOpponentPiece(ChessPosition position, ChessPiece piece) {
         if (position == null || piece == null) return false;
         return board[position.getRow() - 1][position.getColumn() - 1].getTeamColor() != piece.getTeamColor();
-    }
-    public void printBoard() {
-        for (ChessPiece[] chessPieces : board) {
-            for (ChessPiece chessPiece : chessPieces) {
-                if (chessPiece == null) {
-                    System.out.print(" . ");
-                } else {
-                    System.out.print(" " + chessPiece.getPieceType() + " ");
-                }
-            }
-            System.out.println();
-        }
     }
 }
