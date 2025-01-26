@@ -78,24 +78,30 @@ public class ChessPiece {
 
         switch (piece.getPieceType()) {
             case PAWN:
-                return calculatePawnMoves(board, myPosition, piece, moveList);
+                calculatePawnMoves(board, myPosition, piece, moveList);
+                break;
             case ROOK:
-                return calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {{1, 0}, {0, 1}, {-1, 0}, {0, -1}});
+                calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {{1, 0}, {0, 1}, {-1, 0}, {0, -1}});
+                break;
             case BISHOP:
-                return calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+                calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+                break;
             case QUEEN:
-                return calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {
+                calculateSlidingPieceMoves(board, myPosition, piece, moveList, new int[][] {
                         {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}
                 });
+                break;
             case KNIGHT:
-                return calculateKnightMoves(board, myPosition, piece, moveList);
+                calculateKnightMoves(board, myPosition, piece, moveList);
+                break;
             case KING:
-                return calculateKingMoves(board, myPosition, piece, moveList);
+                calculateKingMoves(board, myPosition, piece, moveList);
+                break;
         };
         return moveList;
     }
 
-    private Collection<ChessMove> calculatePawnMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
+    private void calculatePawnMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
         int moveDirection = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
         int row = position.getRow();
         int col = position.getColumn();
@@ -146,10 +152,9 @@ public class ChessPiece {
                 }
             }
         }
-        return moves;
     }
 
-    private Collection<ChessMove> calculateSlidingPieceMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves, int[][] directions) {
+    private void calculateSlidingPieceMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves, int[][] directions) {
         for (int[] direction : directions) {
             int col = position.getColumn();
             int row = position.getRow();
@@ -173,9 +178,8 @@ public class ChessPiece {
                 }
             }
         }
-        return moves;
     }
-    private Collection<ChessMove> calculateKnightMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
+    private void calculateKnightMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
             int[][] knightMoves = {
                     {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
             };
@@ -187,14 +191,13 @@ public class ChessPiece {
 
                 if (!board.isPositionOutOfBounds(newPosition)) {
                     ChessPiece targetPiece = board.getPiece(newPosition);
-                    if (targetPiece == null || targetPiece.getTeamColor() != piece.getTeamColor()) {
+                    if (targetPiece == null || board.isOpponentPiece(newPosition, piece)) {
                         moves.add(new ChessMove(position, newPosition, null));
                     }
                 }
             }
-            return moves;
     }
-    private Collection<ChessMove> calculateKingMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
+    private void calculateKingMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
         int[] directions = {-1, 0, 1};
 
         for (int rowOffset : directions) {
@@ -207,13 +210,11 @@ public class ChessPiece {
 
                 if (!board.isPositionOutOfBounds(newPosition)) {
                     ChessPiece targetPiece = board.getPiece(newPosition);
-
                     if (targetPiece == null || board.isOpponentPiece(newPosition, piece)) {
                         moves.add(new ChessMove(position, newPosition, null));
                     }
                 }
             }
         }
-        return moves;
     }
 }

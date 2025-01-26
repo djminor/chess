@@ -24,14 +24,35 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
-
     ChessPiece[][] board;
     public ChessBoard() {
-        initializeBoard();
-
+        this.board = new ChessPiece[8][8];
+    }
+    /**
+     * Adds a chess piece to the chessboard
+     *
+     * @param position where to add the piece to
+     * @param piece    the piece to add
+     */
+    public void addPiece(ChessPosition position, ChessPiece piece) {
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
+    }
+    /**
+     * Gets a chess piece on the chessboard
+     *
+     * @param position The position to get the piece from
+     * @return Either the piece at the position, or null if no piece is at that
+     * position
+     */
+    public ChessPiece getPiece(ChessPosition position) {
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
-    public void initializeBoard() {
+    /**
+     * Sets the board to the default starting board
+     * (How the game of chess normally starts)
+     */
+    public void resetBoard() {
         this.board = new ChessPiece[8][8];
         //Initialize pawns
         for(int i = 1; i <= 8; i++) {
@@ -69,35 +90,6 @@ public class ChessBoard {
         //Initialize black queen
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
     }
-
-    /**
-     * Adds a chess piece to the chessboard
-     *
-     * @param position where to add the piece to
-     * @param piece    the piece to add
-     */
-    public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow() - 1][position.getColumn() - 1] = piece;
-    }
-
-    /**
-     * Gets a chess piece on the chessboard
-     *
-     * @param position The position to get the piece from
-     * @return Either the piece at the position, or null if no piece is at that
-     * position
-     */
-    public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getRow() - 1][position.getColumn() - 1];
-    }
-
-    /**
-     * Sets the board to the default starting board
-     * (How the game of chess normally starts)
-     */
-    public void resetBoard() {
-        initializeBoard();
-    }
     public boolean isPositionOutOfBounds(ChessPosition position) {
         int row = position.getRow();
         int col = position.getColumn();
@@ -105,6 +97,8 @@ public class ChessBoard {
     }
     public boolean isOpponentPiece(ChessPosition position, ChessPiece piece) {
         if (position == null || piece == null) return false;
+        ChessPiece targetPiece = getPiece(position);
+        if (targetPiece == null) return false;
         return board[position.getRow() - 1][position.getColumn() - 1].getTeamColor() != piece.getTeamColor();
     }
 }
