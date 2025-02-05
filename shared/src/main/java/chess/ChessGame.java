@@ -64,12 +64,12 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = this.currentBoard.getPiece(startPosition);
+        System.out.print(piece);
         if(piece == null) {
+            System.out.print("This is where I made it: inside the first if");
             return Collections.emptyList();
         } else {
-            if(getTeamTurn() != piece.getTeamColor()) {
-                return Collections.emptyList();
-            }
+            System.out.print("This is where I made it: inside the else block");
             return piece.pieceMoves(currentBoard, startPosition);
         }
     }
@@ -121,6 +121,12 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
+        for(int i = 1; i <= 8; i++) {
+            for(int j = i; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                this.currentBoard.addPiece(position, board.getPiece(position));
+            }
+        }
 
     }
 
