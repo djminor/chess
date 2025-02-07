@@ -66,10 +66,9 @@ public class ChessGame {
         ChessPiece piece = this.currentBoard.getPiece(startPosition);
         System.out.print(piece);
         if(piece == null) {
-            System.out.print("This is where I made it: inside the first if");
             return Collections.emptyList();
         } else {
-            System.out.print("This is where I made it: inside the else block");
+
             return piece.pieceMoves(currentBoard, startPosition);
         }
     }
@@ -91,8 +90,90 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = findKing(teamColor);
+        ChessPiece king = currentBoard.getPiece(kingPosition);
+        int row = kingPosition.getRow();
+        int col = kingPosition.getColumn();
+
+        // King in check on a diagonal
+        int[][] diagonalDirections = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+        for (int[] direction : diagonalDirections) {
+
+            while (true) {
+                col += direction[0];
+                row += direction[1];
+                ChessPosition newPosition = new ChessPosition(row, col);
+
+                if (currentBoard.isPositionOutOfBounds(newPosition)) break;
+
+                ChessPiece enemyPiece = currentBoard.getPiece(newPosition);
+
+                if (enemyPiece != null) {
+                    if (enemyPiece.getTeamColor() != king.getTeamColor()) {
+                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.PAWN
+                                && (newPosition.getColumn() == kingPosition.getColumn() + 1
+                                || newPosition.getColumn() == kingPosition.getColumn() - 1)) {
+                            return true;
+                        }
+                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.BISHOP
+                                || enemyPiece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+                            return true;
+                        }
+                    }
+                    break;
+                }
+
+            }
+        }
+        // King in check on a straightaway
+        int[][] straightDirections = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+        for (int[] direction : straightDirections) {
+
+            while (true) {
+                col += direction[0];
+                row += direction[1];
+                ChessPosition newPosition = new ChessPosition(row, col);
+
+                if (currentBoard.isPositionOutOfBounds(newPosition)) break;
+
+                ChessPiece enemyPiece = currentBoard.getPiece(newPosition);
+
+                if (enemyPiece != null) {
+                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.ROOK
+                                || enemyPiece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+                            return true;
+                        }
+                    }
+                    break;
+                }
+
+            }
+
+        // King in check by knight
+        int[][] knightMoves = {
+                {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+        };
+
+        for (int[] move : knightMoves) {
+            col = kingPosition.getColumn() + move[0];
+            row = kingPosition.getRow() + move[1];
+            ChessPosition checkPosition = new ChessPosition(row, col);
+
+            if (!currentBoard.isPositionOutOfBounds(checkPosition)) {
+                ChessPiece checkPiece = currentBoard.getPiece(checkPosition);
+                if (checkPiece != null) {
+                    if (currentBoard.isOpponentPiece(checkPosition, king)
+                    && checkPiece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -137,5 +218,22 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.currentBoard;
+    }
+
+    public ChessPosition findKing(TeamColor color) {
+        ChessPosition kingPosition = null;
+        for(int i = 1; i <= 8; i++) {
+            for(int j = i; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = currentBoard.getPiece(position);
+                if(piece != null) {
+                    if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
+                        kingPosition = position;
+                        break;
+                    }
+                }
+            }
+        }
+        return kingPosition;
     }
 }
