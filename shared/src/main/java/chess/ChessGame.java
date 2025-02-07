@@ -68,7 +68,6 @@ public class ChessGame {
         if(piece == null) {
             return Collections.emptyList();
         } else {
-
             return piece.pieceMoves(currentBoard, startPosition);
         }
     }
@@ -80,7 +79,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
+        if(isInCheck(teamTurn)) {
+            ChessBoard tempBoard = currentBoard;
+            ChessPosition startPosition = move.getStartPosition();
+            ChessPosition endPosition = move.getEndPosition();
+            ChessPiece movingPiece = tempBoard.getPiece(startPosition);
+            tempBoard.addPiece(endPosition, movingPiece);
+            tempBoard.removePiece(startPosition);
+        }
     }
 
     /**
@@ -131,7 +137,7 @@ public class ChessGame {
 
         for (int[] direction : straightDirections) {
 
-            while (true) {
+            while(true) {
                 col += direction[0];
                 row += direction[1];
                 ChessPosition newPosition = new ChessPosition(row, col);
