@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ChessGame {
     public TeamColor teamTurn;
     public ChessBoard currentBoard = new ChessBoard();
+    public ChessBoard tempBoard = new ChessBoard();
 
     @Override
     public boolean equals(Object o) {
@@ -72,14 +73,14 @@ public class ChessGame {
             return Collections.emptyList();
         } else {
             for(ChessMove move : piece.pieceMoves(currentBoard, startPosition)) {
-                ChessBoard tempBoard = currentBoard;
-                tempBoard.addPiece(move.getEndPosition(), tempBoard.getPiece(move.getStartPosition()));
+                tempBoard.addPiece(move.getEndPosition(), currentBoard.getPiece(move.getStartPosition()));
                 tempBoard.removePiece(move.getStartPosition());
                 ChessGame tempGame = new ChessGame();
                 tempGame.setBoard(tempBoard);
                 if (!tempGame.isInCheck(piece.getTeamColor())) {
                     moves.add(move);
                 }
+                tempBoard.removePiece(move.getEndPosition());
             }
         }
         return moves;
@@ -111,6 +112,9 @@ public class ChessGame {
             teamTurn = TeamColor.BLACK;
         }
 
+        currentBoard.addPiece(move.getEndPosition(), piece);
+        currentBoard.removePiece(move.getStartPosition());
+
         if(teamTurn == TeamColor.BLACK) {
             teamTurn = TeamColor.WHITE;
         }
@@ -132,11 +136,13 @@ public class ChessGame {
         int[][] diagonalDirections = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
         for (int[] direction : diagonalDirections) {
+            int currentRow = row;
+            int currentCol = col;
 
             while (true) {
-                col += direction[0];
-                row += direction[1];
-                ChessPosition newPosition = new ChessPosition(row, col);
+                currentCol += direction[0];
+                currentRow += direction[1];
+                ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
 
                 if (currentBoard.isPositionOutOfBounds(newPosition)) break;
 
@@ -144,9 +150,9 @@ public class ChessGame {
 
                 if (enemyPiece != null) {
                     if (enemyPiece.getTeamColor() != king.getTeamColor()) {
-                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.PAWN
-                                && (newPosition.getColumn() == kingPosition.getColumn() + 1
-                                || newPosition.getColumn() == kingPosition.getColumn() - 1)) {
+                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                                (newPosition.getColumn() == kingPosition.getColumn() + 1
+                                        || newPosition.getColumn() == kingPosition.getColumn() - 1)) {
                             return true;
                         }
                         if (enemyPiece.getPieceType() == ChessPiece.PieceType.BISHOP
@@ -156,24 +162,27 @@ public class ChessGame {
                     }
                     break;
                 }
-
             }
         }
+
         // King in check on a straightaway
         int[][] straightDirections = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
         for (int[] direction : straightDirections) {
+            int currentRow = row;
+            int currentCol = col;
 
             while(true) {
-                col += direction[0];
-                row += direction[1];
-                ChessPosition newPosition = new ChessPosition(row, col);
+                currentCol += direction[0];
+                currentRow += direction[1];
+                ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
 
                 if (currentBoard.isPositionOutOfBounds(newPosition)) break;
 
                 ChessPiece enemyPiece = currentBoard.getPiece(newPosition);
 
                 if (enemyPiece != null) {
+                    if (enemyPiece.getTeamColor() != king.getTeamColor()) {
                         if (enemyPiece.getPieceType() == ChessPiece.PieceType.ROOK
                                 || enemyPiece.getPieceType() == ChessPiece.PieceType.QUEEN) {
                             return true;
@@ -181,8 +190,8 @@ public class ChessGame {
                     }
                     break;
                 }
-
             }
+        }
 
         // King in check by knight
         int[][] knightMoves = {
@@ -190,15 +199,15 @@ public class ChessGame {
         };
 
         for (int[] move : knightMoves) {
-            col = kingPosition.getColumn() + move[0];
-            row = kingPosition.getRow() + move[1];
-            ChessPosition checkPosition = new ChessPosition(row, col);
+            int currentCol = col + move[0];
+            int currentRow = row + move[1];
+            ChessPosition checkPosition = new ChessPosition(currentRow, currentCol);
 
             if (!currentBoard.isPositionOutOfBounds(checkPosition)) {
                 ChessPiece checkPiece = currentBoard.getPiece(checkPosition);
                 if (checkPiece != null) {
                     if (currentBoard.isOpponentPiece(checkPosition, king)
-                    && checkPiece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                            && checkPiece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
                         return true;
                     }
                 }
@@ -236,6 +245,17 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.currentBoard = board;
+        this.tempBoard = new ChessBoard();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null) {
+                    this.tempBoard.addPiece(position, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
+                }
+            }
+        }
+
 
     }
 
