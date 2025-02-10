@@ -150,7 +150,7 @@ public class ChessGame {
 
                 if (enemyPiece != null) {
                     if (enemyPiece.getTeamColor() != king.getTeamColor()) {
-                        if (enemyPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                        if ((enemyPiece.getPieceType() == ChessPiece.PieceType.PAWN || enemyPiece.getPieceType() == ChessPiece.PieceType.KING) &&
                                 (newPosition.getColumn() == kingPosition.getColumn() + 1
                                         || newPosition.getColumn() == kingPosition.getColumn() - 1)) {
                             return true;
@@ -183,6 +183,10 @@ public class ChessGame {
 
                 if (enemyPiece != null) {
                     if (enemyPiece.getTeamColor() != king.getTeamColor()) {
+                        if(enemyPiece.getPieceType() == ChessPiece.PieceType.KING && (newPosition.getRow() == kingPosition.getRow() + 1
+                                || newPosition.getRow() == kingPosition.getRow() - 1)) {
+                            return true;
+                        }
                         if (enemyPiece.getPieceType() == ChessPiece.PieceType.ROOK
                                 || enemyPiece.getPieceType() == ChessPiece.PieceType.QUEEN) {
                             return true;
