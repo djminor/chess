@@ -73,6 +73,7 @@ public class ChessGame {
             return Collections.emptyList();
         } else {
             for(ChessMove move : piece.pieceMoves(currentBoard, startPosition)) {
+                ChessPiece enemyPiece = tempBoard.getPiece(move.getEndPosition());
                 tempBoard.addPiece(move.getEndPosition(), currentBoard.getPiece(move.getStartPosition()));
                 tempBoard.removePiece(move.getStartPosition());
                 ChessGame tempGame = new ChessGame();
@@ -81,6 +82,9 @@ public class ChessGame {
                     moves.add(move);
                 }
                 tempBoard.removePiece(move.getEndPosition());
+                if(enemyPiece != null) {
+                    tempBoard.addPiece(move.getEndPosition(), enemyPiece);
+                }
             }
         }
         return moves;
@@ -107,15 +111,17 @@ public class ChessGame {
         if(!validMoves.contains(move)) {
             throw new InvalidMoveException("King cannot be left in check");
         }
-
+        if(move.getPromotionPiece() != null) {
+            currentBoard.addPiece(move.getEndPosition(), new ChessPiece(teamTurn, move.getPromotionPiece()));
+            currentBoard.removePiece(move.getStartPosition());
+        }
+        if (move.getPromotionPiece() == null) {
+            currentBoard.addPiece(move.getEndPosition(), piece);
+            currentBoard.removePiece(move.getStartPosition());
+        }
         if(teamTurn == TeamColor.WHITE) {
             teamTurn = TeamColor.BLACK;
-        }
-
-        currentBoard.addPiece(move.getEndPosition(), piece);
-        currentBoard.removePiece(move.getStartPosition());
-
-        if(teamTurn == TeamColor.BLACK) {
+        } else {
             teamTurn = TeamColor.WHITE;
         }
     }
@@ -273,19 +279,17 @@ public class ChessGame {
     }
 
     public ChessPosition findKing(TeamColor color) {
-        ChessPosition kingPosition = null;
         for(int i = 1; i <= 8; i++) {
             for(int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(position);
                 if(piece != null) {
                     if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
-                        kingPosition = position;
-                        break;
+                        return position;
                     }
                 }
             }
         }
-        return kingPosition;
+        return null;
     }
 }
