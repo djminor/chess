@@ -3,6 +3,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import spark.*;
 
+import model.UserData;
+
 import java.util.Objects;
 
 
@@ -20,6 +22,7 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (this::register));
         Spark.post("/session", (this::login));
+        Spark.delete("/session", this::logout);
         Spark.delete("/db", this::ClearDatabase);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
@@ -45,7 +48,7 @@ public class Server {
         String email = reqJson.get("email").getAsString();
         String authToken = "";
 
-        DataAccess.UserData userData = service.getUser(username);
+        UserData userData = service.getUser(username);
         if (userData == null) {
             service.createUser(username, password, email);
             authToken = service.createAuth(username);
@@ -56,7 +59,7 @@ public class Server {
             return gson.toJson(json);
         } else {
             JsonObject json = new JsonObject();
-            json.addProperty("message", "Error: Forbidden");
+            json.addProperty("message", "Error: Already taken");
             response.status(403);
             return gson.toJson(json);
         }
@@ -87,6 +90,21 @@ public class Server {
             response.status(401);
             return gson.toJson(errorJson);
         }
+    }
+
+    private Object logout(Request request, Response response) {
+        String authToken = request.headers("Authorization");
+        System.out.print(request.queryParams());
+            if (service.getAuth(authToken) != null) {
+                service.deleteAuth(authToken);
+                response.status(200);
+                return gson.toJson(new JsonObject());
+            } else {
+                JsonObject errorJson = new JsonObject();
+                errorJson.addProperty("message", "Error: Unauthorized");
+                response.status(401);
+                return gson.toJson(errorJson);
+            }
     }
 
     private boolean verifyPassword(String username, String password) {

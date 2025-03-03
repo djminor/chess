@@ -1,29 +1,35 @@
 package server;
 
-import java.util.Objects;
+import model.UserData;
+import model.AuthData;
 
 import java.util.UUID;
 
 public class Service {
 
-    DataAccess dataAccess = new DataAccess();
+    public UserData getUser(String username) {
+        return dataaccess.UserDataAccess.findUser(username);
+    }
 
-    public DataAccess.UserData getUser(String username) {
-        return dataAccess.findUser(username);
+    public AuthData getAuth(String authToken) {
+        return dataaccess.AuthDataAccess.findAuthData(authToken);
+    }
+
+    public void deleteAuth(String authToken) {
+        dataaccess.AuthDataAccess.deleteAuthData(authToken);
     }
 
     public void createUser(String username, String password, String email) {
-        dataAccess.addUser(username, password, email);
+        dataaccess.UserDataAccess.addUser(username, password, email);
     }
 
     public String createAuth(String username) {
         String authToken = UUID.randomUUID().toString();
-        dataAccess.addAuth(username, authToken);
-
+        dataaccess.AuthDataAccess.addAuth(username, authToken);
         return authToken;
     }
 
     public void clear() {
-        dataAccess.clearDatabase();
+        dataaccess.ClearDataAccess.clearDatabase();
     }
 }
