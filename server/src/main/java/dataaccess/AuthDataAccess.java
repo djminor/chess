@@ -9,11 +9,7 @@ public class AuthDataAccess {
     private static final Map<String, AuthData> authorizedUsers = new HashMap<>();
 
     public static AuthData findAuthData(String authToken) {
-        if (authorizedUsers.get(authToken) == null) {
-            return null;
-        } else {
-            return authorizedUsers.get(authToken);
-        }
+        return authorizedUsers.get(authToken);
     }
     public static void deleteAuthData(String authToken) {
         if (authorizedUsers.get(authToken) == null) {
