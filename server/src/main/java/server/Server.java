@@ -24,6 +24,8 @@ public class Server {
         Spark.post("/user", (this::register));
         Spark.post("/session", (this::login));
         Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
+        Spark.post("/game", this::createGame);
         Spark.delete("/db", this::ClearDatabase);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
@@ -45,11 +47,11 @@ public class Server {
         return Handler.logout(request, response);
     }
 
-    private boolean verifyPassword(String username, String password) {
-        String expectedPassword = service.getUser(username).password();
-        return Objects.equals(expectedPassword, password);
+    private Object listGames(Request request, Response response) {
+        return Handler.listGames(request, response);
     }
 
+    private Object createGame(Request request, Response response) { return Handler.createGame(request, response); }
 
     private Object ClearDatabase(Request request, Response response) {
         service.clear();

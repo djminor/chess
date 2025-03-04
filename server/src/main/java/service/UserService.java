@@ -1,17 +1,14 @@
 package service;
 
 import dataaccess.AuthDataAccess;
+import dataaccess.GameDataAccess;
 import dataaccess.UserDataAccess;
+import model.GameData;
 import org.eclipse.jetty.server.Authentication;
-import service.request.LoginRequest;
-import service.request.LogoutRequest;
-import service.request.RegisterRequest;
-import service.result.LoginResult;
-import service.result.LogoutResult;
-import service.result.RegisterResult;
+import service.request.*;
+import service.result.*;
 
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class UserService {
 
@@ -51,4 +48,21 @@ public class UserService {
             return new LogoutResult("Error: bad request");
         }
     }
+
+    public static ListGamesResult listGames(ListGamesRequest listGamesRequest) {
+        if (AuthDataAccess.findAuthData(listGamesRequest.authToken()) != null) {
+            List<GameData> games = GameDataAccess.getGames();
+            return new ListGamesResult.Success(games);
+        }
+        else return new ListGamesResult.Error("Error: Unauthorized");
+    }
+
+    public static CreateGameResult createGame(CreateGameRequest createGameRequest) {
+        if (AuthDataAccess.findAuthData(createGameRequest.authToken()) != null) {
+            GameData game = GameDataAccess.createGame(createGameRequest.gameName());
+            System.out.print(game);
+            return new CreateGameResult.Success(game.gameID());
+        } else return new CreateGameResult.Error("Error: bad request");
+    }
+
 }

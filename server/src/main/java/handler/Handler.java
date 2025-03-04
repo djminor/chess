@@ -3,12 +3,8 @@ package handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import service.UserService;
-import service.request.LoginRequest;
-import service.request.LogoutRequest;
-import service.request.RegisterRequest;
-import service.result.LoginResult;
-import service.result.LogoutResult;
-import service.result.RegisterResult;
+import service.request.*;
+import service.result.*;
 import spark.Request;
 import spark.Response;
 
@@ -71,6 +67,33 @@ public class Handler {
         }
         response.status(200);
         return serializer.toJson(new JsonObject());
+    }
+
+    public static Object listGames(Request request, Response response) {
+        String authToken = request.headers("Authorization");
+        ListGamesResult result = UserService.listGames(new ListGamesRequest(authToken));
+        System.out.print(serializer.toJson(result));
+        if (result instanceof ListGamesResult.Error errorResult) {
+            response.status(401);
+            return serializer.toJson(errorResult);
+        }
+        response.status(200);
+        return serializer.toJson(result);
+    }
+
+    public static Object createGame(Request request, Response response) {
+        JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
+        String authToken = request.headers("Authorization");
+        String gameName = reqJson.get("gameName").getAsString();
+        CreateGameResult result = UserService.createGame(new CreateGameRequest(gameName, authToken));
+        if (result instanceof CreateGameResult.Error errorResult) {
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: Unauthorized");
+            response.status(401);
+            return serializer.toJson(errorJson);
+        }
+        response.status(200);
+        return serializer.toJson(result);
     }
 
 }
