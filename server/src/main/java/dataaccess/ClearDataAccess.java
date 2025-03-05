@@ -7,4 +7,9 @@ public class ClearDataAccess {
         AuthDataAccess.clearAuthData();
         GameDataAccess.clearGameData();
     }
+    public static Boolean databaseCleared() {
+        return UserDataAccess.emptyUserData() &&
+                AuthDataAccess.emptyAuthData() &&
+                GameDataAccess.emptyGameData();
+    }
 }

@@ -20,4 +20,7 @@ public class UserDataAccess {
     public static void clearUserData() {
         users.clear();
     }
+    public static Boolean emptyUserData() {
+        return users.isEmpty();
+    }
 }

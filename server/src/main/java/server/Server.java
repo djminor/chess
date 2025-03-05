@@ -26,6 +26,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::ClearDatabase);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
@@ -53,10 +54,10 @@ public class Server {
 
     private Object createGame(Request request, Response response) { return Handler.createGame(request, response); }
 
+    private Object joinGame(Request request, Response response) { return Handler.joinGame(request, response); }
+
     private Object ClearDatabase(Request request, Response response) {
-        service.clear();
-        response.status(200);
-        return "{}";
+        return Handler.clear(response);
     }
 
     public void stop() {

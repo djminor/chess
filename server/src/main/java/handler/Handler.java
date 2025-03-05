@@ -2,11 +2,14 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.eclipse.jetty.server.Authentication;
 import service.UserService;
 import service.request.*;
 import service.result.*;
 import spark.Request;
 import spark.Response;
+
+import java.util.Objects;
 
 public class Handler {
     private static final Gson serializer = new Gson();
@@ -57,7 +60,6 @@ public class Handler {
 
     public static Object logout(Request request, Response response) {
         String authToken = request.headers("Authorization");
-        System.out.print(authToken);
         LogoutResult result = UserService.logout(new LogoutRequest(authToken));
         if (result.authToken().contains("Error")) {
             JsonObject errorJson = new JsonObject();
@@ -72,7 +74,6 @@ public class Handler {
     public static Object listGames(Request request, Response response) {
         String authToken = request.headers("Authorization");
         ListGamesResult result = UserService.listGames(new ListGamesRequest(authToken));
-        System.out.print(serializer.toJson(result));
         if (result instanceof ListGamesResult.Error errorResult) {
             response.status(401);
             return serializer.toJson(errorResult);
@@ -96,4 +97,49 @@ public class Handler {
         return serializer.toJson(result);
     }
 
+    public static Object joinGame(Request request, Response response) {
+        JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
+        if (!reqJson.has("playerColor") || reqJson.get("playerColor").isJsonNull()) {
+            response.status(400);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: bad request");
+            return serializer.toJson(errorJson);
+        }
+        String authToken = request.headers("Authorization");
+        int gameID = reqJson.get("gameID").getAsInt();
+        String playerColor = reqJson.get("playerColor").getAsString();
+        JoinGameResult result = UserService.joinGame(new JoinGameRequest(authToken, playerColor, gameID));
+        if (Objects.equals(result.errorMessage(), "Invalid color")) {
+            response.status(400);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: bad request");
+            return serializer.toJson(errorJson);
+        }
+        if (Objects.equals(result.errorMessage(), "Error")) {
+            response.status(401);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: Unauthorized");
+            return serializer.toJson(errorJson);
+        }
+        if (Objects.equals(result.errorMessage(), "Steal")) {
+            response.status(403);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: Team already taken");
+            return serializer.toJson(errorJson);
+        }
+        response.status(200);
+        return serializer.toJson(result);
+    }
+    public static Object clear(Response response) {
+        ClearDBResult result = UserService.clearDB();
+        if (result.success()) {
+            response.status(200);
+            JsonObject json = new JsonObject();
+            return serializer.toJson(json);
+        }
+        response.status(500);
+        JsonObject errorJson = new JsonObject();
+        errorJson.addProperty("message", "Error: Unauthorized");
+        return serializer.toJson(errorJson);
+    }
 }

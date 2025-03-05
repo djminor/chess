@@ -24,4 +24,7 @@ public class AuthDataAccess {
     public static void clearAuthData() {
         authorizedUsers.clear();
     }
+    public static Boolean emptyAuthData() {
+        return authorizedUsers.isEmpty();
+    }
 }

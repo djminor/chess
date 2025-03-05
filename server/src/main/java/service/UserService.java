@@ -1,10 +1,10 @@
 package service;
 
 import dataaccess.AuthDataAccess;
+import dataaccess.ClearDataAccess;
 import dataaccess.GameDataAccess;
 import dataaccess.UserDataAccess;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import service.request.*;
 import service.result.*;
 
@@ -40,7 +40,6 @@ public class UserService {
     }
     public static LogoutResult logout(LogoutRequest logoutRequest) {
         if (AuthDataAccess.findAuthData(logoutRequest.authToken()) != null) {
-            System.out.print("It's not null");
             AuthDataAccess.deleteAuthData(logoutRequest.authToken());
             return new LogoutResult(logoutRequest.authToken());
         }
@@ -59,10 +58,28 @@ public class UserService {
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) {
         if (AuthDataAccess.findAuthData(createGameRequest.authToken()) != null) {
-            GameData game = GameDataAccess.createGame(createGameRequest.gameName());
-            System.out.print(game);
+            GameData game = GameDataAccess.createGameData(createGameRequest.gameName());
             return new CreateGameResult.Success(game.gameID());
         } else return new CreateGameResult.Error("Error: bad request");
     }
+
+    public static JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
+        String authToken = joinGameRequest.authToken();
+        if (AuthDataAccess.findAuthData(joinGameRequest.authToken()) != null) {
+            String playerColor = joinGameRequest.playerColor();
+            int gameID = joinGameRequest.gameID();
+            return new JoinGameResult(GameDataAccess.setGameData(playerColor, gameID, authToken));
+        }
+        return new JoinGameResult("Error");
+    }
+
+    public static ClearDBResult clearDB() {
+        ClearDataAccess.clearDatabase();
+        if (ClearDataAccess.databaseCleared()) {
+            return new ClearDBResult(true);
+        }
+        else return new ClearDBResult(false);
+    }
+
 
 }
