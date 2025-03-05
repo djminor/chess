@@ -74,9 +74,11 @@ public class Handler {
     public static Object listGames(Request request, Response response) {
         String authToken = request.headers("Authorization");
         ListGamesResult result = UserService.listGames(new ListGamesRequest(authToken));
-        if (result instanceof ListGamesResult.Error errorResult) {
+        if (result instanceof ListGamesResult.Error) {
             response.status(401);
-            return serializer.toJson(errorResult);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: Unauthorized");
+            return serializer.toJson(errorJson);
         }
         response.status(200);
         return serializer.toJson(result);
@@ -100,6 +102,12 @@ public class Handler {
     public static Object joinGame(Request request, Response response) {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         if (!reqJson.has("playerColor") || reqJson.get("playerColor").isJsonNull()) {
+            response.status(400);
+            JsonObject errorJson = new JsonObject();
+            errorJson.addProperty("message", "Error: bad request");
+            return serializer.toJson(errorJson);
+        }
+        if (!reqJson.has("gameID") || reqJson.get("gameID").isJsonNull()) {
             response.status(400);
             JsonObject errorJson = new JsonObject();
             errorJson.addProperty("message", "Error: bad request");
