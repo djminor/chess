@@ -11,8 +11,6 @@ import java.util.Objects;
 
 public class Server {
 
-    Service service = new Service();
-
     private static final Gson gson = new Gson();
 
     public int run(int desiredPort) {
