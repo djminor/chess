@@ -30,6 +30,18 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
         }
         return null;
     }
+    public void deleteAuth(String authToken) {
+        String statement = "DELETE FROM authorization WHERE authToken=?";
+
+        try (Connection connection = getConnection();
+             var preppedStatement = connection.prepareStatement(statement)) {
+
+            preppedStatement.setString(1, authToken);
+            preppedStatement.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void addAuth(AuthData auth) {
         String statement = "INSERT INTO authorization (username, authToke, json) VALUES (?, ?, ?)";
 
