@@ -14,7 +14,7 @@ public class MySQLUserDataAccess implements UserDataAccess {
 
     public UserData findUser(String username) throws DataAccessException {
         try (Connection connection = getConnection()) {
-            var statement = "SELECT username, json from WHERE username=?";
+            var statement = "SELECT username, json from user WHERE username=?";
             try (var preppedStatement = connection.prepareStatement(statement)) {
                 preppedStatement.setString(1, username);
                 try (var result = preppedStatement.executeQuery()) {
@@ -46,7 +46,6 @@ public class MySQLUserDataAccess implements UserDataAccess {
             preppedStatement.setString(3, user.email());
             preppedStatement.setString(4, json);
 
-            int inserted = preppedStatement.executeUpdate();
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }

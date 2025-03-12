@@ -1,47 +1,43 @@
 package service;
 
-import dataaccess.ClearDataAccess;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-import dataaccess.GameDataAccess;
-import dataaccess.AuthDataAccess;
+
 import service.request.CreateGameRequest;
 import service.result.CreateGameResult;
 
 public class CreateGameTest {
+    ClearDataAccess clearDataAccess = new ClearDataAccess();
+    UserService userService = new UserService();
+    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
+    GameDataAccess gameDataAccess = new MemoryGameDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        ClearDataAccess.clearDatabase();
+        clearDataAccess.clearDatabase();
     }
 
     @Test
     @DisplayName("Create Game - Positive Test")
-    void createGameSuccess() {
+    void createGameSuccess() throws DataAccessException {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "Create Test";
-        AuthDataAccess.addAuth(username, authToken);
-
-        GameDataAccess.createGameData(gameName);
-
-        assertEquals("Create Test", GameDataAccess.getGames().getFirst().gameName());
+        authDataAccess.addAuth(username, authToken);
+        gameDataAccess.createGameData(gameName);
+        assertEquals("Create Test", gameDataAccess.getGames().getFirst().gameName());
     }
 
     @Test
     @DisplayName("Create Game - Negative Test")
-    void createGameFailure() {
+    void createGameFailure() throws DataAccessException {
         String gameName = "Create Test";
         String authToken = "1234ABCbadrequest";
-        CreateGameResult result = UserService.createGame(new CreateGameRequest(gameName, authToken));
-
+        CreateGameResult result = userService.createGame(new CreateGameRequest(gameName, authToken));
         assertNotNull(result);
         String actualMessage = result.toString().replaceAll("Error\\[error=", "").replaceAll("]", "");
         assertEquals("Error: bad request", actualMessage);
-
-
-        assertTrue(GameDataAccess.getGames().isEmpty());
-
+        assertTrue(gameDataAccess.getGames().isEmpty());
     }
 }

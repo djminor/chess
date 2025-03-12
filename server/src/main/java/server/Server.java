@@ -13,6 +13,7 @@ import java.util.Objects;
 public class Server {
 
     private static final Gson gson = new Gson();
+    Handler handler = new Handler();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -36,27 +37,27 @@ public class Server {
     }
 
     private Object register(Request request, Response response) throws DataAccessException {
-        return Handler.register(request, response);
+        return handler.register(request, response);
     }
 
     private Object login(Request request, Response response) throws DataAccessException {
-        return Handler.login(request, response);
+        return handler.login(request, response);
     }
 
-    private Object logout(Request request, Response response) {
-        return Handler.logout(request, response);
+    private Object logout(Request request, Response response) throws DataAccessException {
+        return handler.logout(request, response);
     }
 
-    private Object listGames(Request request, Response response) {
-        return Handler.listGames(request, response);
+    private Object listGames(Request request, Response response) throws DataAccessException {
+        return handler.listGames(request, response);
     }
 
-    private Object createGame(Request request, Response response) { return Handler.createGame(request, response); }
+    private Object createGame(Request request, Response response) throws DataAccessException { return handler.createGame(request, response); }
 
-    private Object joinGame(Request request, Response response) { return Handler.joinGame(request, response); }
+    private Object joinGame(Request request, Response response) throws DataAccessException { return handler.joinGame(request, response); }
 
     private Object ClearDatabase(Request request, Response response) throws DataAccessException {
-        return Handler.clear(response);
+        return handler.clear(response);
     }
 
     public void stop() {

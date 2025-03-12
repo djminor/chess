@@ -14,8 +14,9 @@ import java.util.Objects;
 
 public class Handler {
     private static final Gson serializer = new Gson();
+    UserService userService = new UserService();
 
-    public static Object register(Request request, Response response) throws DataAccessException {
+    public Object register(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         if (!reqJson.has("username") || reqJson.get("username").isJsonNull() || reqJson.get("username").getAsString().isEmpty() ||
                 !reqJson.has("password") || reqJson.get("password").isJsonNull() || reqJson.get("password").getAsString().isEmpty() ||
@@ -30,7 +31,7 @@ public class Handler {
         String password = reqJson.get("password").getAsString();
         String email = reqJson.get("email").getAsString();
 
-        RegisterResult result = UserService.register(new RegisterRequest(username, password, email));
+        RegisterResult result = userService.register(new RegisterRequest(username, password, email));
         if (!result.authToken().isEmpty()) {
             response.status(200);
         } else {
@@ -42,12 +43,12 @@ public class Handler {
         return serializer.toJson(result);
     }
 
-    public static Object login(Request request, Response response) throws DataAccessException {
+    public Object login(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         String username = reqJson.get("username").getAsString();
         String password = reqJson.get("password").getAsString();
 
-        LoginResult result = UserService.login(new LoginRequest(username, password));
+        LoginResult result = userService.login(new LoginRequest(username, password));
 
         if (result.authToken().isEmpty()) {
             JsonObject errorJson = new JsonObject();
@@ -59,9 +60,9 @@ public class Handler {
         return serializer.toJson(result);
     }
 
-    public static Object logout(Request request, Response response) {
+    public Object logout(Request request, Response response) throws DataAccessException {
         String authToken = request.headers("Authorization");
-        LogoutResult result = UserService.logout(new LogoutRequest(authToken));
+        LogoutResult result = userService.logout(new LogoutRequest(authToken));
         if (result.authToken().contains("Error")) {
             JsonObject errorJson = new JsonObject();
             errorJson.addProperty("message", "Error: Unauthorized");
@@ -72,9 +73,9 @@ public class Handler {
         return serializer.toJson(new JsonObject());
     }
 
-    public static Object listGames(Request request, Response response) {
+    public Object listGames(Request request, Response response) throws DataAccessException {
         String authToken = request.headers("Authorization");
-        ListGamesResult result = UserService.listGames(new ListGamesRequest(authToken));
+        ListGamesResult result = userService.listGames(new ListGamesRequest(authToken));
         if (result instanceof ListGamesResult.Error) {
             response.status(401);
             JsonObject errorJson = new JsonObject();
@@ -85,11 +86,11 @@ public class Handler {
         return serializer.toJson(result);
     }
 
-    public static Object createGame(Request request, Response response) {
+    public Object createGame(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         String authToken = request.headers("Authorization");
         String gameName = reqJson.get("gameName").getAsString();
-        CreateGameResult result = UserService.createGame(new CreateGameRequest(gameName, authToken));
+        CreateGameResult result = userService.createGame(new CreateGameRequest(gameName, authToken));
         if (result instanceof CreateGameResult.Error errorResult) {
             JsonObject errorJson = new JsonObject();
             errorJson.addProperty("message", "Error: Unauthorized");
@@ -100,7 +101,7 @@ public class Handler {
         return serializer.toJson(result);
     }
 
-    public static Object joinGame(Request request, Response response) {
+    public Object joinGame(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         if (!reqJson.has("playerColor") || reqJson.get("playerColor").isJsonNull()) {
             response.status(400);
@@ -117,7 +118,7 @@ public class Handler {
         String authToken = request.headers("Authorization");
         int gameID = reqJson.get("gameID").getAsInt();
         String playerColor = reqJson.get("playerColor").getAsString();
-        JoinGameResult result = UserService.joinGame(new JoinGameRequest(authToken, playerColor, gameID));
+        JoinGameResult result = userService.joinGame(new JoinGameRequest(authToken, playerColor, gameID));
         if (Objects.equals(result.errorMessage(), "Invalid color")) {
             response.status(400);
             JsonObject errorJson = new JsonObject();
@@ -139,8 +140,8 @@ public class Handler {
         response.status(200);
         return serializer.toJson(result);
     }
-    public static Object clear(Response response) throws DataAccessException {
-        ClearDBResult result = UserService.clearDB();
+    public Object clear(Response response) throws DataAccessException {
+        ClearDBResult result = userService.clearDB();
         if (result.success()) {
             response.status(200);
             JsonObject json = new JsonObject();

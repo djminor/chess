@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDataAccess;
-import dataaccess.ClearDataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.UserDataAccess;
+import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,10 +12,14 @@ import service.result.LogoutResult;
 
 
 public class LogoutTest {
+    ClearDataAccess clearDataAccess = new ClearDataAccess();
+    UserDataAccess userDataAccess = new MemoryUserDataAccess();
+    UserService userService = new UserService();
+    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        ClearDataAccess.clearDatabase();
+        clearDataAccess.clearDatabase();
     }
 
     @Test
@@ -28,22 +29,19 @@ public class LogoutTest {
         String password = "1234ABC";
         String email = "hello@world.com";
         UserData user = new UserData(username, password, email);
-        UserDataAccess.addUser(user);
+        userDataAccess.addUser(user);
         LoginRequest loginRequest = new LoginRequest(username, password);
-        LoginResult loginResult = UserService.login(loginRequest);
-
+        LoginResult loginResult = userService.login(loginRequest);
         LogoutRequest logoutRequest = new LogoutRequest(loginResult.authToken());
-        UserService.logout(logoutRequest);
-
-        assertNull(AuthDataAccess.findAuthData(loginResult.authToken()));
+        userService.logout(logoutRequest);
+        assertNull(authDataAccess.findAuthData(loginResult.authToken()));
     }
 
     @Test
     @DisplayName("Logout - Negative Test")
-    void loginFailure() {
+    void loginFailure() throws DataAccessException {
         LogoutRequest logoutRequest = new LogoutRequest("nonExistentAuth");
-        LogoutResult logoutResult = UserService.logout(logoutRequest);
-
+        LogoutResult logoutResult = userService.logout(logoutRequest);
         assertNotNull(logoutResult);
         assertEquals("Error: bad request", logoutResult.authToken());
 

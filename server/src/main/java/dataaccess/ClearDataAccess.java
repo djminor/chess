@@ -2,14 +2,17 @@ package dataaccess;
 
 
 public class ClearDataAccess {
-    public static void clearDatabase() throws DataAccessException {
-        UserDataAccess.clearUserData();
-        AuthDataAccess.clearAuthData();
-        GameDataAccess.clearGameData();
+    UserDataAccess userDataAccess = new MySQLUserDataAccess();
+    AuthDataAccess authDataAccess = new MySQLAuthDataAccess();
+    GameDataAccess gameDataAccess = new MySQLGameDataAccess();
+    public void clearDatabase() throws DataAccessException {
+        userDataAccess.clearUserData();
+        authDataAccess.clearAuthData();
+        gameDataAccess.clearGameData();
     }
-    public static Boolean databaseCleared() throws DataAccessException {
-        return Boolean.TRUE.equals(UserDataAccess.emptyUserData()) &&
-                AuthDataAccess.emptyAuthData() &&
-                GameDataAccess.emptyGameData();
+    public Boolean databaseCleared() throws DataAccessException {
+        return Boolean.TRUE.equals(userDataAccess.emptyUserData()) &&
+                authDataAccess.emptyAuthData() &&
+                gameDataAccess.emptyGameData();
     }
 }

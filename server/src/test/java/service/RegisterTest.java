@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.ClearDataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.UserDataAccess;
+import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,10 +8,13 @@ import service.request.RegisterRequest;
 import service.result.RegisterResult;
 
 public class RegisterTest {
+    ClearDataAccess clearDataAccess = new ClearDataAccess();
+    UserDataAccess userDataAccess = new MemoryUserDataAccess();
+    UserService userService = new UserService();
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        ClearDataAccess.clearDatabase();
+        clearDataAccess.clearDatabase();
     }
 
     @Test
@@ -22,12 +23,9 @@ public class RegisterTest {
         String username = "authorizedUser";
         String password = "1234ABC";
         String email = "hello@world.com";
-
         UserData user = new UserData(username, password, email);
-
-        UserDataAccess.addUser(user);
-
-        assertNotNull(UserDataAccess.findUser(username));
+        userDataAccess.addUser(user);
+        assertNotNull(userDataAccess.findUser(username));
     }
 
     @Test
@@ -37,15 +35,10 @@ public class RegisterTest {
         String password = "1234ABC";
         String email = "hello@world.com";
         RegisterRequest request = new RegisterRequest(username, password, email);
-
-        UserService.register(request);
-
-        RegisterResult result = UserService.register(request);
-
+        userService.register(request);
+        RegisterResult result = userService.register(request);
         assertNotNull(result);
-
         assertEquals("Error: Already taken", result.username());
-
     }
 }
 

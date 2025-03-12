@@ -1,53 +1,48 @@
 package service;
 
-import dataaccess.ClearDataAccess;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-import dataaccess.GameDataAccess;
-import dataaccess.AuthDataAccess;
+
 import service.request.JoinGameRequest;
 import service.result.JoinGameResult;
 
 public class JoinGameTest {
+    ClearDataAccess clearDataAccess = new ClearDataAccess();
+    UserService userService = new UserService();
+    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
+    GameDataAccess gameDataAccess = new MemoryGameDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        ClearDataAccess.clearDatabase();
+        clearDataAccess.clearDatabase();
     }
 
     @Test
     @DisplayName("Join Game - Positive Test")
-    void joinGameSuccess() {
+    void joinGameSuccess() throws DataAccessException {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "Join Test";
-        AuthDataAccess.addAuth(username, authToken);
-
-        GameDataAccess.createGameData(gameName);
-
-        UserService.joinGame(new JoinGameRequest(authToken, "WHITE", 1));
-
-        assertEquals("authorizedUser", GameDataAccess.getGames().getFirst().whiteUsername());
+        authDataAccess.addAuth(username, authToken);
+        gameDataAccess.createGameData(gameName);
+        userService.joinGame(new JoinGameRequest(authToken, "WHITE", 1));
+        assertEquals("authorizedUser", gameDataAccess.getGames().getFirst().whiteUsername());
     }
 
     @Test
     @DisplayName("Join Game - Negative Test")
-    void joinGameFailure() {
+    void joinGameFailure() throws DataAccessException {
         String player1 = "player 1";
         String player2 = "player 2";
         String authToken1 = "auth1";
         String authToken2 = "auth2";
         String gameName = "Join Test";
-        AuthDataAccess.addAuth(player1, authToken1);
-        AuthDataAccess.addAuth(player2, authToken2);
-
-        GameDataAccess.createGameData(gameName);
-
-        UserService.joinGame(new JoinGameRequest(authToken1, "WHITE", 1));
-
-        JoinGameResult result = UserService.joinGame(new JoinGameRequest(authToken2, "WHITE", 1));
-
+        authDataAccess.addAuth(player1, authToken1);
+        authDataAccess.addAuth(player2, authToken2);
+        gameDataAccess.createGameData(gameName);
+        userService.joinGame(new JoinGameRequest(authToken1, "WHITE", 1));
+        JoinGameResult result = userService.joinGame(new JoinGameRequest(authToken2, "WHITE", 1));
         assertEquals("Steal", result.errorMessage());
     }
 }

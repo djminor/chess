@@ -8,10 +8,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import service.result.ClearDBResult;
 
 public class ClearTest {
+    ClearDataAccess clearDataAccess = new ClearDataAccess();
+    UserDataAccess userDataAccess = new MemoryUserDataAccess();
+    UserService userService = new UserService();
+    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
+    GameDataAccess gameDataAccess = new MemoryGameDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        ClearDataAccess.clearDatabase();
+        clearDataAccess.clearDatabase();
     }
 
     @Test
@@ -22,16 +27,14 @@ public class ClearTest {
         String password = "1234ABC";
         String email = "hello@world.com";
         UserData user = new UserData(username, password, email);
-        UserDataAccess.addUser(user);
-        AuthDataAccess.addAuth("authorizedUser", "randomnumbers");
-        GameDataAccess.createGameData(gameName);
-
-        ClearDBResult result = UserService.clearDB();
-
+        userDataAccess.addUser(user);
+        authDataAccess.addAuth("authorizedUser", "randomnumbers");
+        gameDataAccess.createGameData(gameName);
+        ClearDBResult result = userService.clearDB();
         assertTrue(result.success());
-        assertEquals(Boolean.TRUE, UserDataAccess.emptyUserData());
-        assertTrue(AuthDataAccess.emptyAuthData());
-        assertTrue(GameDataAccess.emptyGameData());
+        assertEquals(Boolean.TRUE, userDataAccess.emptyUserData());
+        assertTrue(authDataAccess.emptyAuthData());
+        assertTrue(gameDataAccess.emptyGameData());
     }
 }
 
