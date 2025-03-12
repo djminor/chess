@@ -5,26 +5,18 @@ import model.AuthData;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthDataAccess {
-    private static final Map<String, AuthData> authorizedUsers = new HashMap<>();
+public interface AuthDataAccess {
 
-    public static AuthData findAuthData(String authToken) {
-        return authorizedUsers.get(authToken);
+    static AuthData findAuthData(String authToken) {
+        return null;
     }
-    public static void deleteAuthData(String authToken) {
-        if (authorizedUsers.get(authToken) == null) {
-            System.out.print("Not sure how this even happened");
-        } else {
-            authorizedUsers.remove(authToken);
-        }
+    static void deleteAuthData(String authToken) {
     }
-    public static void addAuth(String username, String authToken) {
-        authorizedUsers.put(authToken, new AuthData(username, authToken));
+    static void addAuth(String username, String authToken) {
     }
-    public static void clearAuthData() {
-        authorizedUsers.clear();
+    static void clearAuthData() {
     }
-    public static Boolean emptyAuthData() {
-        return authorizedUsers.isEmpty();
+    static Boolean emptyAuthData() {
+        return null;
     }
 }
