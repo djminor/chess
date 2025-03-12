@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,8 @@ public class CreateGameTest {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "Create Test";
-        authDataAccess.addAuth(username, authToken);
+        AuthData authData = new AuthData(username, authToken);
+        authDataAccess.addAuth(authData);
         gameDataAccess.createGameData(gameName);
         assertEquals("Create Test", gameDataAccess.getGames().getFirst().gameName());
     }

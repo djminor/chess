@@ -8,7 +8,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class MySQLAuthDataAccess implements AuthDataAccess {
+
+    public MySQLAuthDataAccess() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Connection getConnection() throws DataAccessException {
+        DatabaseManager.createDatabase();
         return DatabaseManager.getConnection();
     }
     public AuthData findAuthData(String authToken) throws DataAccessException {
@@ -30,7 +40,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
         }
         return null;
     }
-    public void deleteAuth(String authToken) {
+    public void deleteAuthData(String authToken) {
         String statement = "DELETE FROM authorization WHERE authToken=?";
 
         try (Connection connection = getConnection();
@@ -89,8 +99,21 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
               `username` varchar(256) NOT NULL,
               `authToken` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`authToken`),
+              PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
+
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

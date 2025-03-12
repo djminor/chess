@@ -8,7 +8,7 @@ public interface AuthDataAccess {
 
     void deleteAuthData(String authToken) throws DataAccessException;
 
-    void addAuth(String username, String authToken) throws DataAccessException;
+    void addAuth(AuthData authData) throws DataAccessException;
 
     void clearAuthData() throws DataAccessException;
 

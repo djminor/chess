@@ -18,8 +18,8 @@ public class MemoryAuthDataAccess implements AuthDataAccess {
             authorizedUsers.remove(authToken);
         }
     }
-    public void addAuth(String username, String authToken) {
-        authorizedUsers.put(authToken, new AuthData(username, authToken));
+    public void addAuth(AuthData authData) {
+        authorizedUsers.put(authData.authToken(), new AuthData(authData.username(), authData.authToken()));
     }
     public void clearAuthData() {
         authorizedUsers.clear();

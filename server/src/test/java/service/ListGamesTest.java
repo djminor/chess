@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,8 @@ public class ListGamesTest {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "List Games Test";
-        authDataAccess.addAuth(username, authToken);
+        AuthData authData = new AuthData(username, authToken);
+        authDataAccess.addAuth(authData);
         gameDataAccess.createGameData(gameName);
         var result = userService.listGames(new ListGamesRequest(authToken));
         assertTrue(true);

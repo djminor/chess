@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,8 @@ public class JoinGameTest {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "Join Test";
-        authDataAccess.addAuth(username, authToken);
+        AuthData authData = new AuthData(username, authToken);
+        authDataAccess.addAuth(authData);
         gameDataAccess.createGameData(gameName);
         userService.joinGame(new JoinGameRequest(authToken, "WHITE", 1));
         assertEquals("authorizedUser", gameDataAccess.getGames().getFirst().whiteUsername());
@@ -38,8 +40,10 @@ public class JoinGameTest {
         String authToken1 = "auth1";
         String authToken2 = "auth2";
         String gameName = "Join Test";
-        authDataAccess.addAuth(player1, authToken1);
-        authDataAccess.addAuth(player2, authToken2);
+        AuthData authData1 = new AuthData(player1, authToken1);
+        AuthData authData2 = new AuthData(player2, authToken2);
+        authDataAccess.addAuth(authData1);
+        authDataAccess.addAuth(authData2);
         gameDataAccess.createGameData(gameName);
         userService.joinGame(new JoinGameRequest(authToken1, "WHITE", 1));
         JoinGameResult result = userService.joinGame(new JoinGameRequest(authToken2, "WHITE", 1));

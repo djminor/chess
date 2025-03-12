@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.request.*;
@@ -23,7 +24,8 @@ public class UserService {
             UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
             userDataAccess.addUser(user);
             String authToken = UUID.randomUUID().toString();
-            authDataAccess.addAuth(registerRequest.username(), authToken);
+            AuthData authData = new AuthData(registerRequest.username(), authToken);
+            authDataAccess.addAuth(authData);
             return new RegisterResult(registerRequest.username(), authToken);
         }
     }
@@ -37,7 +39,8 @@ public class UserService {
             }
             else {
                 String authToken = UUID.randomUUID().toString();
-                authDataAccess.addAuth(loginRequest.username(), authToken);
+                AuthData authData = new AuthData(loginRequest.username(), authToken);
+                authDataAccess.addAuth(authData);
                 return new LoginResult(loginRequest.username(), authToken);
             }
         }
