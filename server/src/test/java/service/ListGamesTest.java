@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.ClearDataAccess;
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import dataaccess.GameDataAccess;
@@ -11,7 +12,7 @@ import service.result.ListGamesResult;
 public class ListGamesTest {
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataAccessException {
         ClearDataAccess.clearDatabase();
     }
 

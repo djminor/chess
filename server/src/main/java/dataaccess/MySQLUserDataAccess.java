@@ -47,8 +47,6 @@ public class MySQLUserDataAccess implements UserDataAccess {
             preppedStatement.setString(4, json);
 
             int inserted = preppedStatement.executeUpdate();
-            if (inserted > 0) {
-            }
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -56,11 +54,29 @@ public class MySQLUserDataAccess implements UserDataAccess {
 
 
     public void clearUserData() {
-
+        String statement = "DELETE FROM user";
+        try (Connection connection = getConnection();
+            var preppedStatement = connection.prepareStatement(statement)) {
+            preppedStatement.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Boolean emptyUserData() {
-        return true;
+        String statement = "SELECT COUNT(*) FROM user";
+
+        try (Connection connection = getConnection();
+             var preppedStatement = connection.prepareStatement(statement);
+             var result = preppedStatement.executeQuery()) {
+
+            if (result.next()) {
+                return result.getInt(1) == 0;
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 
     private final String[] createStatements = {

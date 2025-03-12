@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import dataaccess.DataAccessException;
 import org.eclipse.jetty.server.Authentication;
 import service.UserService;
 import service.request.*;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class Handler {
     private static final Gson serializer = new Gson();
 
-    public static Object register(Request request, Response response) {
+    public static Object register(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         if (!reqJson.has("username") || reqJson.get("username").isJsonNull() || reqJson.get("username").getAsString().isEmpty() ||
                 !reqJson.has("password") || reqJson.get("password").isJsonNull() || reqJson.get("password").getAsString().isEmpty() ||
@@ -41,7 +42,7 @@ public class Handler {
         return serializer.toJson(result);
     }
 
-    public static Object login(Request request, Response response) {
+    public static Object login(Request request, Response response) throws DataAccessException {
         JsonObject reqJson = serializer.fromJson(request.body(), JsonObject.class);
         String username = reqJson.get("username").getAsString();
         String password = reqJson.get("password").getAsString();
@@ -138,7 +139,7 @@ public class Handler {
         response.status(200);
         return serializer.toJson(result);
     }
-    public static Object clear(Response response) {
+    public static Object clear(Response response) throws DataAccessException {
         ClearDBResult result = UserService.clearDB();
         if (result.success()) {
             response.status(200);

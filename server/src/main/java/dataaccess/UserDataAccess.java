@@ -7,7 +7,9 @@ public interface UserDataAccess {
         return null;
     }
 
-    void addUser(UserData user) throws DataAccessException;
+    static void addUser(UserData user) throws DataAccessException {
+
+    }
 
     static void clearUserData() throws DataAccessException {
 

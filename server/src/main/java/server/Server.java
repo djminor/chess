@@ -1,6 +1,7 @@
 package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import dataaccess.DataAccessException;
 import spark.*;
 
 import model.UserData;
@@ -34,11 +35,11 @@ public class Server {
         return Spark.port();
     }
 
-    private Object register(Request request, Response response) {
+    private Object register(Request request, Response response) throws DataAccessException {
         return Handler.register(request, response);
     }
 
-    private Object login(Request request, Response response) {
+    private Object login(Request request, Response response) throws DataAccessException {
         return Handler.login(request, response);
     }
 
@@ -54,7 +55,7 @@ public class Server {
 
     private Object joinGame(Request request, Response response) { return Handler.joinGame(request, response); }
 
-    private Object ClearDatabase(Request request, Response response) {
+    private Object ClearDatabase(Request request, Response response) throws DataAccessException {
         return Handler.clear(response);
     }
 

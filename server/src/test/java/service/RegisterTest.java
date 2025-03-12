@@ -1,7 +1,9 @@
 package service;
 
 import dataaccess.ClearDataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.UserDataAccess;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import service.request.RegisterRequest;
@@ -10,25 +12,27 @@ import service.result.RegisterResult;
 public class RegisterTest {
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataAccessException {
         ClearDataAccess.clearDatabase();
     }
 
     @Test
     @DisplayName("Register - Positive Test")
-    void registerSuccess() {
+    void registerSuccess() throws DataAccessException {
         String username = "authorizedUser";
         String password = "1234ABC";
         String email = "hello@world.com";
 
-        UserDataAccess.addUser(username, password, email);
+        UserData user = new UserData(username, password, email);
+
+        UserDataAccess.addUser(user);
 
         assertNotNull(UserDataAccess.findUser(username));
     }
 
     @Test
     @DisplayName("Register - Negative Test")
-    void registerFailure() {
+    void registerFailure() throws DataAccessException {
         String username = "authorizedUser";
         String password = "1234ABC";
         String email = "hello@world.com";

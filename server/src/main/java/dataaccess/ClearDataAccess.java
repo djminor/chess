@@ -8,7 +8,7 @@ public class ClearDataAccess {
         GameDataAccess.clearGameData();
     }
     public static Boolean databaseCleared() throws DataAccessException {
-        return UserDataAccess.emptyUserData() &&
+        return Boolean.TRUE.equals(UserDataAccess.emptyUserData()) &&
                 AuthDataAccess.emptyAuthData() &&
                 GameDataAccess.emptyGameData();
     }

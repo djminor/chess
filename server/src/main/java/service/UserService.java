@@ -1,10 +1,8 @@
 package service;
 
-import dataaccess.AuthDataAccess;
-import dataaccess.ClearDataAccess;
-import dataaccess.GameDataAccess;
-import dataaccess.UserDataAccess;
+import dataaccess.*;
 import model.GameData;
+import model.UserData;
 import service.request.*;
 import service.result.*;
 
@@ -12,18 +10,19 @@ import java.util.*;
 
 public class UserService {
 
-    public static RegisterResult register(RegisterRequest registerRequest) {
+    public static RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
         if (UserDataAccess.findUser(registerRequest.username()) != null) {
             return new RegisterResult("Error: Already taken", "");
         }
         else {
-            UserDataAccess.addUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            UserDataAccess.addUser(user);
             String authToken = UUID.randomUUID().toString();
             AuthDataAccess.addAuth(registerRequest.username(), authToken);
             return new RegisterResult(registerRequest.username(), authToken);
         }
     }
-    public static LoginResult login(LoginRequest loginRequest) {
+    public static LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         if(UserDataAccess.findUser(loginRequest.username()) == null) {
             return new LoginResult("Error: Unauthorized", "");
         }
@@ -73,7 +72,7 @@ public class UserService {
         return new JoinGameResult("Error");
     }
 
-    public static ClearDBResult clearDB() {
+    public static ClearDBResult clearDB() throws DataAccessException {
         ClearDataAccess.clearDatabase();
         if (ClearDataAccess.databaseCleared()) {
             return new ClearDBResult(true);
