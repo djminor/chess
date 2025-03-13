@@ -17,7 +17,6 @@ public class MySQLUserDataAccess implements UserDataAccess {
     }
 
     private Connection getConnection() throws DataAccessException {
-        DatabaseManager.createDatabase();
         return DatabaseManager.getConnection();
     }
 

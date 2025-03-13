@@ -159,8 +159,8 @@ public class MySQLGameDataAccess implements GameDataAccess {
             """
             CREATE TABLE IF NOT EXISTS game (
               `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) NOT NULL,
-              `blackUsername` varchar(256) NOT NULL,
+              `whiteUsername` varchar(256) DEFAULT NULL,
+              `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)

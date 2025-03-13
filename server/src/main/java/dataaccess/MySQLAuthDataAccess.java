@@ -18,12 +18,11 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
     }
 
     private Connection getConnection() throws DataAccessException {
-        DatabaseManager.createDatabase();
         return DatabaseManager.getConnection();
     }
     public AuthData findAuthData(String authToken) throws DataAccessException {
         try (Connection connection = getConnection()) {
-            var statement = "SELECT authToken, json from WHERE authToken=?";
+            var statement = "SELECT authToken, username, json from authorization WHERE authToken=?";
             try (var preppedStatement = connection.prepareStatement(statement)) {
                 preppedStatement.setString(1, authToken);
                 try (var result = preppedStatement.executeQuery()) {
@@ -53,7 +52,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
         }
     }
     public void addAuth(AuthData auth) {
-        String statement = "INSERT INTO authorization (username, authToke, json) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO authorization (username, authToken, json) VALUES (?, ?, ?)";
 
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement)) {
@@ -64,7 +63,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
             preppedStatement.setString(2, auth.authToken());
             preppedStatement.setString(3, json);
 
-            int inserted = preppedStatement.executeUpdate();
+            preppedStatement.executeUpdate();
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -95,8 +94,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
     }
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  authorization (
-              `username` varchar(256) NOT NULL,
+            CREATE TABLE IF NOT EXISTS authorization (
               `authToken` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`authToken`)
