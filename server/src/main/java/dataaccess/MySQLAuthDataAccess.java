@@ -22,7 +22,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
     }
     public AuthData findAuthData(String authToken) throws DataAccessException {
         try (Connection connection = getConnection()) {
-            var statement = "SELECT authToken, username, json from authorization WHERE authToken=?";
+            var statement = "SELECT username, authToken, json from authorization WHERE authToken=?";
             try (var preppedStatement = connection.prepareStatement(statement)) {
                 preppedStatement.setString(1, authToken);
                 try (var result = preppedStatement.executeQuery()) {
@@ -69,7 +69,7 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
         }
     }
     public void clearAuthData() {
-        String statement = "DELETE FROM authorization";
+        String statement = "TRUNCATE TABLE authorization";
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement)) {
             preppedStatement.executeUpdate();
@@ -96,6 +96,8 @@ public class MySQLAuthDataAccess implements AuthDataAccess {
             """
             CREATE TABLE IF NOT EXISTS authorization (
               `authToken` varchar(256) NOT NULL,
+              `username` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """

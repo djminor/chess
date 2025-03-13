@@ -129,7 +129,7 @@ public class MySQLGameDataAccess implements GameDataAccess {
     }
 
     public void clearGameData() {
-        String statement = "DELETE FROM game";
+        String statement = "TRUNCATE TABLE game";
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement)) {
             preppedStatement.executeUpdate();
@@ -161,6 +161,7 @@ public class MySQLGameDataAccess implements GameDataAccess {
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """

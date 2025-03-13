@@ -22,7 +22,7 @@ public class MySQLUserDataAccess implements UserDataAccess {
 
     public UserData findUser(String username) throws DataAccessException {
         try (Connection connection = getConnection()) {
-            var statement = "SELECT username, json from user WHERE username=?";
+            var statement = "SELECT username, password, email, json from user WHERE username=?";
             try (var preppedStatement = connection.prepareStatement(statement)) {
                 preppedStatement.setString(1, username);
                 try (var result = preppedStatement.executeQuery()) {
@@ -54,6 +54,8 @@ public class MySQLUserDataAccess implements UserDataAccess {
             preppedStatement.setString(3, user.email());
             preppedStatement.setString(4, json);
 
+            preppedStatement.executeUpdate();
+
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -61,7 +63,7 @@ public class MySQLUserDataAccess implements UserDataAccess {
 
 
     public void clearUserData() {
-        String statement = "DELETE FROM user";
+        String statement = "TRUNCATE TABLE user";
         try (Connection connection = getConnection();
             var preppedStatement = connection.prepareStatement(statement)) {
             preppedStatement.executeUpdate();
@@ -92,6 +94,7 @@ public class MySQLUserDataAccess implements UserDataAccess {
               `username` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
