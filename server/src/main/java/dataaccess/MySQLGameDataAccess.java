@@ -23,7 +23,7 @@ public class MySQLGameDataAccess implements GameDataAccess {
 
     public List<GameData> getGames() throws DataAccessException {
         List<GameData> result = new ArrayList<>();
-        String statement = "SELECT gameID, json FROM game";
+        String statement = "SELECT gameID, whiteUsername, blackUsername, gameName FROM game";
 
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement);
@@ -45,7 +45,7 @@ public class MySQLGameDataAccess implements GameDataAccess {
     }
 
     public GameData createGameData(String gameName) throws DataAccessException {
-        String statement = "INSERT INTO game (gameName, whiteUsername, blackUsername) VALUES (?, NULL, NULL)";
+        String statement = "INSERT INTO game (gameName) VALUES (?)";
 
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement, java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -57,7 +57,6 @@ public class MySQLGameDataAccess implements GameDataAccess {
                 throw new DataAccessException("Creating game failed, no rows affected.");
             }
 
-            // Retrieve the generated gameID
             try (var result = preppedStatement.getGeneratedKeys()) {
                 if (result.next()) {
                     int gameID = result.getInt(1);
@@ -162,7 +161,6 @@ public class MySQLGameDataAccess implements GameDataAccess {
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
-              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
