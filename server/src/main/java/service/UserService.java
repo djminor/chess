@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.request.*;
 import service.result.*;
 
@@ -21,7 +22,8 @@ public class UserService {
             return new RegisterResult("Error: Already taken", "");
         }
         else {
-            UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            String hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+            UserData user = new UserData(registerRequest.username(), hashedPassword, registerRequest.email());
             userDataAccess.addUser(user);
             String authToken = UUID.randomUUID().toString();
             AuthData authData = new AuthData(registerRequest.username(), authToken);
@@ -34,7 +36,7 @@ public class UserService {
             return new LoginResult("Error: Unauthorized", "");
         }
         else {
-            if(!Objects.equals(Objects.requireNonNull(userDataAccess.findUser(loginRequest.username())).password(), loginRequest.password())) {
+            if(!verifyPassword(loginRequest.username(), loginRequest.password())) {
                 return new LoginResult("Error: Unauthorized", "");
             }
             else {
@@ -53,6 +55,11 @@ public class UserService {
         else {
             return new LogoutResult("Error: bad request");
         }
+    }
+
+    private Boolean verifyPassword(String username, String password) throws DataAccessException {
+        var hashedPassword = userDataAccess.findUser(username).password();
+        return BCrypt.checkpw(password, hashedPassword);
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {

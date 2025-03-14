@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MySQLGameDataAccess implements GameDataAccess {
 
@@ -88,13 +89,13 @@ public class MySQLGameDataAccess implements GameDataAccess {
                     String blackUsername = result.getString("blackUsername");
 
                     if ("WHITE".equalsIgnoreCase(playerColor)) {
-                        if (whiteUsername != null) {
+                        if (!Objects.equals(whiteUsername, "")) {
                             return "Steal";
                         }
                         updateQuery = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
                     }
                     else if ("BLACK".equalsIgnoreCase(playerColor)) {
-                        if (blackUsername != null) {
+                        if (!Objects.equals(blackUsername, "")) {
                             return "Steal";
                         }
                         updateQuery = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
@@ -129,6 +130,7 @@ public class MySQLGameDataAccess implements GameDataAccess {
     }
 
     public void clearGameData() {
+        System.out.println("Clearing game data...");
         String statement = "TRUNCATE TABLE game";
         try (Connection connection = getConnection();
              var preppedStatement = connection.prepareStatement(statement)) {
@@ -158,10 +160,9 @@ public class MySQLGameDataAccess implements GameDataAccess {
             """
             CREATE TABLE IF NOT EXISTS game (
               `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) DEFAULT NULL,
-              `blackUsername` varchar(256) DEFAULT NULL,
+              `whiteUsername` varchar(256) NOT NULL DEFAULT '',
+              `blackUsername` varchar(256) NOT NULL DEFAULT '',
               `gameName` varchar(256) NOT NULL,
-              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
