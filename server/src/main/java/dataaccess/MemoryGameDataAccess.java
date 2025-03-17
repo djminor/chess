@@ -1,6 +1,5 @@
 package dataaccess;
 
-import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -8,15 +7,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class MemoryGameDataAccess implements GameDataAccess {
-    private static final List<GameData> games = new ArrayList<>();
+    private static final List<GameData> GAMES_DATA = new ArrayList<>();
 
     public List<GameData> getGames() {
-        return games;
+        return GAMES_DATA;
     }
 
     public GameData createGameData(String gameName) {
-        GameData newGame = new GameData(games.size() + 1, null, null, gameName);
-        games.add(newGame);
+        GameData newGame = new GameData(GAMES_DATA.size() + 1, null, null, gameName);
+        GAMES_DATA.add(newGame);
         return newGame;
     }
 
@@ -24,21 +23,21 @@ public class MemoryGameDataAccess implements GameDataAccess {
         AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
         String username = authDataAccess.findAuthData(authToken).username();
         if (Objects.equals(playerColor, "WHITE")) {
-            GameData oldGame = games.get(gameID - 1);
+            GameData oldGame = GAMES_DATA.get(gameID - 1);
             if (oldGame.whiteUsername() != null) {
                 return "Steal";
             }
             GameData updatedGame = new GameData(oldGame.gameID(), username, oldGame.blackUsername(), oldGame.gameName());
-            games.set(gameID - 1, updatedGame);
+            GAMES_DATA.set(gameID - 1, updatedGame);
             return "";
         }
         if (Objects.equals(playerColor, "BLACK")) {
-            GameData oldGame = games.get(gameID - 1);
+            GameData oldGame = GAMES_DATA.get(gameID - 1);
             if (oldGame.blackUsername() != null) {
                 return "Steal";
             }
             GameData updatedGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), username, oldGame.gameName());
-            games.set(gameID - 1, updatedGame);
+            GAMES_DATA.set(gameID - 1, updatedGame);
             return "";
         }
         if (playerColor != null) {
@@ -48,11 +47,11 @@ public class MemoryGameDataAccess implements GameDataAccess {
     }
 
     public void clearGameData() {
-        games.clear();
+        GAMES_DATA.clear();
     }
 
     public Boolean emptyGameData() {
-        return games.isEmpty();
+        return GAMES_DATA.isEmpty();
     }
 }
 

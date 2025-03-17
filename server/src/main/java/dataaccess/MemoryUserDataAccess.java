@@ -6,21 +6,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryUserDataAccess implements UserDataAccess {
-    private static final Map<String, UserData> users = new HashMap<>();
+    private static final Map<String, UserData> USER_DATA = new HashMap<>();
     public UserData findUser(String username) {
-        if (users.get(username) == null) {
+        if (USER_DATA.get(username) == null) {
             return null;
         } else {
-            return users.get(username);
+            return USER_DATA.get(username);
         }
     }
     public void addUser(UserData user) {
-        users.put(user.username(), new UserData(user.username(), user.password(), user.email()));
+        USER_DATA.put(user.username(), new UserData(user.username(), user.password(), user.email()));
     }
     public void clearUserData() {
-        users.clear();
+        USER_DATA.clear();
     }
     public Boolean emptyUserData() {
-        return users.isEmpty();
+        return USER_DATA.isEmpty();
     }
 }

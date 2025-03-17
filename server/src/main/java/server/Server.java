@@ -12,7 +12,6 @@ import java.util.Objects;
 
 public class Server {
 
-    private static final Gson gson = new Gson();
     Handler handler = new Handler();
 
     public int run(int desiredPort) {
@@ -27,7 +26,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.delete("/db", this::ClearDatabase);
+        Spark.delete("/db", this::clearDatabase);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
@@ -56,7 +55,7 @@ public class Server {
 
     private Object joinGame(Request request, Response response) throws DataAccessException { return handler.joinGame(request, response); }
 
-    private Object ClearDatabase(Request request, Response response) throws DataAccessException {
+    private Object clearDatabase(Request request, Response response) throws DataAccessException {
         return handler.clear(response);
     }
 
