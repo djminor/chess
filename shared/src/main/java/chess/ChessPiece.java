@@ -180,41 +180,34 @@ public class ChessPiece {
         }
     }
     private void calculateKnightMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
-            int[][] knightMoves = {
-                    {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
-            };
-
-            for (int[] move : knightMoves) {
-                int col = position.getColumn() + move[0];
-                int row = position.getRow() + move[1];
-                ChessPosition newPosition = new ChessPosition(row, col);
-
-                if (!board.isPositionOutOfBounds(newPosition)) {
-                    ChessPiece targetPiece = board.getPiece(newPosition);
-                    if (targetPiece == null || board.isOpponentPiece(newPosition, piece)) {
-                        moves.add(new ChessMove(position, newPosition, null));
-                    }
-                }
-            }
+        int[][] knightMoves = {
+                {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+        };
+        addKingKnightMoves(board, position, piece, moves, knightMoves);
     }
+
     private void calculateKingMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves) {
-        int[] directions = {-1, 0, 1};
+        int[][] kingMoves = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                { 0, -1},          { 0, 1},
+                { 1, -1}, { 1, 0}, { 1, 1}
+        };
+        addKingKnightMoves(board, position, piece, moves, kingMoves);
+    }
 
-        for (int rowOffset : directions) {
-            for (int colOffset : directions) {
-                if (rowOffset == 0 && colOffset == 0) {
-                    continue;
-                }
+    private void addKingKnightMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves, int[][] moveOffsets) {
+        for (int[] move : moveOffsets) {
+            int newRow = position.getRow() + move[0];
+            int newCol = position.getColumn() + move[1];
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
 
-                ChessPosition newPosition = new ChessPosition(position.getRow() + rowOffset, position.getColumn() + colOffset);
-
-                if (!board.isPositionOutOfBounds(newPosition)) {
-                    ChessPiece targetPiece = board.getPiece(newPosition);
-                    if (targetPiece == null || board.isOpponentPiece(newPosition, piece)) {
-                        moves.add(new ChessMove(position, newPosition, null));
-                    }
+            if (!board.isPositionOutOfBounds(newPosition)) {
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if (targetPiece == null || board.isOpponentPiece(newPosition, piece)) {
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
             }
         }
     }
+
 }

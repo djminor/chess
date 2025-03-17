@@ -239,17 +239,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if(isInCheck(teamColor)) {
-            for(int i = 1; i <= 8; i++) {
-                for(int j = 1; j <= 8; j++) {
-                    ChessPosition position = new ChessPosition(i, j);
-                    if(currentBoard.getPiece(position) != null && currentBoard.getPiece(position).getTeamColor() == teamColor) {
-                        if (!validMoves(position).isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+            return noAvailableMoves(teamColor);
         }
         return false;
     }
@@ -263,19 +253,23 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if(!isInCheck(teamColor)) {
-            for(int i = 1; i <= 8; i++) {
-                for(int j = 1; j <= 8; j++) {
-                    ChessPosition position = new ChessPosition(i, j);
-                    if(currentBoard.getPiece(position) != null && currentBoard.getPiece(position).getTeamColor() == teamColor) {
-                        if (!validMoves(position).isEmpty()) {
-                            return false;
-                        }
+            return noAvailableMoves(teamColor);
+        }
+        return false;
+    }
+
+    public boolean noAvailableMoves(TeamColor teamColor) {
+        for(int i = 1; i <= 8; i++) {
+            for(int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if(currentBoard.getPiece(position) != null && currentBoard.getPiece(position).getTeamColor() == teamColor) {
+                    if (!validMoves(position).isEmpty()) {
+                        return false;
                     }
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     /**
