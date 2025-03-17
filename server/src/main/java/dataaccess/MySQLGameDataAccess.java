@@ -89,16 +89,24 @@ public class MySQLGameDataAccess implements GameDataAccess {
                     String blackUsername = result.getString("blackUsername");
 
                     if ("WHITE".equalsIgnoreCase(playerColor)) {
-                        if (!Objects.equals(whiteUsername, "")) {
+                        if (!Objects.equals(whiteUsername, "") && !Objects.equals(whiteUsername, null)) {
                             return "Steal";
                         }
-                        updateQuery = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
+                        if (Objects.equals(blackUsername, "")) {
+                            updateQuery = "UPDATE game SET whiteUsername = ?, blackUsername = NULL WHERE gameID = ?";
+                        } else {
+                            updateQuery = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
+                        }
                     }
                     else if ("BLACK".equalsIgnoreCase(playerColor)) {
-                        if (!Objects.equals(blackUsername, "")) {
+                        if (!Objects.equals(blackUsername, "") && !Objects.equals(blackUsername, null)) {
                             return "Steal";
                         }
-                        updateQuery = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
+                        if (Objects.equals(whiteUsername, "")) {
+                            updateQuery = "UPDATE game SET blackUsername = ?, whiteUsername = NULL WHERE gameID = ?";
+                        } else {
+                            updateQuery = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
+                        }
                     }
                     else if (playerColor != null) {
                         return "Invalid color";
@@ -160,8 +168,8 @@ public class MySQLGameDataAccess implements GameDataAccess {
             """
             CREATE TABLE IF NOT EXISTS game (
               `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) DEFAULT NULL,
-              `blackUsername` varchar(256) DEFAULT NULL,
+              `whiteUsername` varchar(256) DEFAULT '',
+              `blackUsername` varchar(256) DEFAULT '',
               `gameName` varchar(256) NOT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
