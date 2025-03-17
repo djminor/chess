@@ -67,14 +67,18 @@ public class UserService {
             List<GameData> games = gameDataAccess.getGames();
             return new ListGamesResult.Success(games);
         }
-        else return new ListGamesResult.Error("Error: Unauthorized");
+        else {
+            return new ListGamesResult.Error("Error: Unauthorized");
+        }
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         if (authDataAccess.findAuthData(createGameRequest.authToken()) != null) {
             GameData game = gameDataAccess.createGameData(createGameRequest.gameName());
             return new CreateGameResult.Success(game.gameID());
-        } else return new CreateGameResult.Error("Error: bad request");
+        } else {
+            return new CreateGameResult.Error("Error: bad request");
+        }
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
@@ -92,8 +96,8 @@ public class UserService {
         if (clearDataAccess.databaseCleared()) {
             return new ClearDBResult(true);
         }
-        else return new ClearDBResult(false);
+        else {
+            return new ClearDBResult(false);
+        }
     }
-
-
 }

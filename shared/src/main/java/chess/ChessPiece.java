@@ -141,7 +141,8 @@ public class ChessPiece {
             if (!board.isPositionOutOfBounds(capturePosition)) {
                 ChessPiece targetPiece = board.getPiece(capturePosition);
                 if (targetPiece != null && board.isOpponentPiece(capturePosition, piece)) {
-                    if (((piece.getTeamColor() == ChessGame.TeamColor.WHITE && capturePosition.getRow() == 8)) || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && capturePosition.getRow() == 1)) {
+                    if (((piece.getTeamColor() == ChessGame.TeamColor.WHITE && capturePosition.getRow() == 8)) ||
+                            (piece.getTeamColor() == ChessGame.TeamColor.BLACK && capturePosition.getRow() == 1)) {
                         moves.add(new ChessMove(position, capturePosition, ChessPiece.PieceType.QUEEN));
                         moves.add(new ChessMove(position, capturePosition, ChessPiece.PieceType.ROOK));
                         moves.add(new ChessMove(position, capturePosition, ChessPiece.PieceType.BISHOP));
@@ -154,7 +155,12 @@ public class ChessPiece {
         }
     }
 
-    private void calculateSlidingPieceMoves(ChessBoard board, ChessPosition position, ChessPiece piece, Collection<ChessMove> moves, int[][] directions) {
+    private void calculateSlidingPieceMoves(
+            ChessBoard board,
+            ChessPosition position,
+            ChessPiece piece,
+            Collection<ChessMove> moves,
+            int[][] directions) {
         for (int[] direction : directions) {
             int col = position.getColumn();
             int row = position.getRow();
@@ -164,7 +170,9 @@ public class ChessPiece {
                 row += direction[1];
                 ChessPosition newPosition = new ChessPosition(row, col);
 
-                if (board.isPositionOutOfBounds(newPosition)) break;
+                if (board.isPositionOutOfBounds(newPosition)) {
+                    break;
+                };
 
                 ChessPiece targetPiece = board.getPiece(newPosition);
 

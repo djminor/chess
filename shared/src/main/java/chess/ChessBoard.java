@@ -99,9 +99,13 @@ public class ChessBoard {
         return row < 1 || row > 8 || col < 1 || col > 8;
     }
     public boolean isOpponentPiece(ChessPosition position, ChessPiece piece) {
-        if (position == null || piece == null) return false;
+        if (position == null || piece == null) {
+            return false;
+        };
         ChessPiece targetPiece = getPiece(position);
-        if (targetPiece == null) return false;
+        if (targetPiece == null) {
+            return false;
+        };
         return board[position.getRow() - 1][position.getColumn() - 1].getTeamColor() != piece.getTeamColor();
     }
 }
