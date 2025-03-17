@@ -62,6 +62,7 @@ public class Handler {
 
     public Object logout(Request request, Response response) throws DataAccessException {
         String authToken = request.headers("Authorization");
+        System.out.print(request.queryParams("authToken"));
         LogoutResult result = userService.logout(new LogoutRequest(authToken));
         if (result.authToken().contains("Error")) {
             JsonObject errorJson = new JsonObject();
