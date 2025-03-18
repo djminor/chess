@@ -14,14 +14,14 @@ public class EmptyAuthDataTest {
     }
 
     @Test
-    @DisplayName("Empty Game Data - Positive Test")
+    @DisplayName("Empty Auth Data - Positive Test")
     void emptyAuthDataTableTest() throws DataAccessException {
         boolean isEmpty = authDataAccess.emptyAuthData();
         assertTrue(isEmpty);
     }
 
     @Test
-    @DisplayName("Empty Game Data - Negative Test")
+    @DisplayName("Empty Auth Data - Negative Test")
     void nonEmptyAuthDataTableTest() throws DataAccessException {
         String username = "authorizedUser";
         String authToken = "1234ABC";
