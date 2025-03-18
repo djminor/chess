@@ -15,7 +15,7 @@ public class SetGameDataTest {
 
     @Test
     @DisplayName("Join Game - Positive Test")
-    void joinGameSuccess() throws DataAccessException {
+    void setGameDataSuccess() throws DataAccessException {
         String username = "authorizedUser";
         String authToken = "1234ABC";
         String gameName = "Join Test";
@@ -28,7 +28,7 @@ public class SetGameDataTest {
 
     @Test
     @DisplayName("Join Game - Negative Test")
-    void joinGameFailure() throws DataAccessException {
+    void setGameDataFailure() throws DataAccessException {
         String player1 = "player 1";
         String player2 = "player 2";
         String authToken1 = "auth1";

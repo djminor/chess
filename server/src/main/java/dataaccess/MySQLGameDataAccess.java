@@ -46,6 +46,11 @@ public class MySQLGameDataAccess implements GameDataAccess {
     }
 
     public GameData createGameData(String gameName) throws DataAccessException {
+
+        if (gameName == null || gameName.isEmpty()) {
+            throw new DataAccessException("Game name cannot be empty.");
+        }
+
         String statement = "INSERT INTO game (gameName) VALUES (?)";
 
         try (Connection connection = getConnection();
