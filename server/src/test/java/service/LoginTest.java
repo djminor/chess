@@ -6,12 +6,13 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import service.request.LoginRequest;
+import service.request.RegisterRequest;
 import service.result.LoginResult;
 
 
 public class LoginTest {
     ClearDataAccess clearDataAccess = new ClearDataAccess();
-    UserDataAccess userDataAccess = new MemoryUserDataAccess();
+    UserDataAccess userDataAccess = new MySQLUserDataAccess();
     UserService userService = new UserService();
 
     @BeforeEach
@@ -23,10 +24,11 @@ public class LoginTest {
     @DisplayName("Login - Positive Test")
     void loginSuccess() throws DataAccessException {
         String username = "authorizedUser";
-        String password = "1234ABC";
+        String password = "password";
         String email = "hello@world.com";
         UserData user = new UserData(username, password, email);
-        userDataAccess.addUser(user);
+        RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+        userService.register(registerRequest);
         LoginRequest request = new LoginRequest(username, password);
         LoginResult result = userService.login(request);
 

@@ -10,10 +10,10 @@ import service.result.ClearDBResult;
 
 public class ClearTest {
     ClearDataAccess clearDataAccess = new ClearDataAccess();
-    UserDataAccess userDataAccess = new MemoryUserDataAccess();
+    UserDataAccess userDataAccess = new MySQLUserDataAccess();
     UserService userService = new UserService();
-    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
-    GameDataAccess gameDataAccess = new MemoryGameDataAccess();
+    AuthDataAccess authDataAccess = new MySQLAuthDataAccess();
+    GameDataAccess gameDataAccess = new MySQLGameDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {

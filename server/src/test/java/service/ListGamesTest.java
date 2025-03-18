@@ -11,8 +11,8 @@ import service.result.ListGamesResult;
 public class ListGamesTest {
     ClearDataAccess clearDataAccess = new ClearDataAccess();
     UserService userService = new UserService();
-    AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
-    GameDataAccess gameDataAccess = new MemoryGameDataAccess();
+    AuthDataAccess authDataAccess = new MySQLAuthDataAccess();
+    GameDataAccess gameDataAccess = new MySQLGameDataAccess();
 
     @BeforeEach
     void setUp() throws DataAccessException {
