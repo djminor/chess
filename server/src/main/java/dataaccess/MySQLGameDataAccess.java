@@ -89,58 +89,55 @@ public class MySQLGameDataAccess implements GameDataAccess {
 
             preppedStatement.setInt(1, gameID);
             try (var result = preppedStatement.executeQuery()) {
-                if (result.next()) {
-                    String whiteUsername = result.getString("whiteUsername");
-                    String blackUsername = result.getString("blackUsername");
-
-                    if ("WHITE".equalsIgnoreCase(playerColor)) {
-                        if (!Objects.equals(whiteUsername, "") && !Objects.equals(whiteUsername, null)) {
-                            return "Steal";
-                        }
-                        if (Objects.equals(blackUsername, "")) {
-                            updateQuery = "UPDATE game SET whiteUsername = ?, blackUsername = NULL WHERE gameID = ?";
-                        } else {
-                            updateQuery = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
-                        }
-                    }
-                    else if ("BLACK".equalsIgnoreCase(playerColor)) {
-                        if (!Objects.equals(blackUsername, "") && !Objects.equals(blackUsername, null)) {
-                            return "Steal";
-                        }
-                        if (Objects.equals(whiteUsername, "")) {
-                            updateQuery = "UPDATE game SET blackUsername = ?, whiteUsername = NULL WHERE gameID = ?";
-                        } else {
-                            updateQuery = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
-                        }
-                    }
-                    else if (playerColor != null) {
-                        return "Invalid color";
-                    }
-                    else {
-                        return "Error";
-                    }
-                } else {
+                if (!result.next()) {
                     return "Game not found";
+                }
+
+                String whiteUsername = result.getString("whiteUsername");
+                String blackUsername = result.getString("blackUsername");
+
+                if ("WHITE".equalsIgnoreCase(playerColor)) {
+                    if (!Objects.equals(whiteUsername, "") && whiteUsername != null) {
+                        return "Steal";
+                    }
+                    if (Objects.equals(blackUsername, "")) {
+                        updateQuery = "UPDATE game SET whiteUsername = ?, blackUsername = NULL WHERE gameID = ?";
+                    } else {
+                        updateQuery = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
+                    }
+                } else if ("BLACK".equalsIgnoreCase(playerColor)) {
+                    if (!Objects.equals(blackUsername, "") && blackUsername != null) {
+                        return "Steal";
+                    }
+                    if (Objects.equals(whiteUsername, "")) {
+                        updateQuery = "UPDATE game SET blackUsername = ?, whiteUsername = NULL WHERE gameID = ?";
+                    } else {
+                        updateQuery = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
+                    }
+                } else if (playerColor != null) {
+                    return "Invalid color";
+                } else {
+                    return "Error";
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         try (Connection connection = getConnection();
              var updateStatement = connection.prepareStatement(updateQuery)) {
+
             updateStatement.setString(1, username);
             updateStatement.setInt(2, gameID);
             int affectedRows = updateStatement.executeUpdate();
 
-            if (affectedRows > 0) {
-                return "";
-            } else {
-                return "Error updating game";
-            }
+            return affectedRows > 0 ? "" : "Error updating game";
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
     public void clearGameData() {
         System.out.println("Clearing game data...");
