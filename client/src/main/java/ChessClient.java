@@ -8,9 +8,15 @@ public class ChessClient {
 
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
+        boolean loggedOut = true;
+        boolean loggedIn = false;
         boolean running = true;
         while (running) {
-            System.out.print("\n[LOGGED OUT] >>>");
+            if (loggedOut) {
+                System.out.print("\n[LOGGED OUT] >>>");
+            } else if (loggedIn) {
+                System.out.print("\n[LOGGED IN] >>>");
+            }
             String input = scanner.nextLine().trim();
             if (input.equals("help")) {
                 printHelp();
@@ -19,7 +25,7 @@ public class ChessClient {
                 System.out.print( EscapeSequences.SET_TEXT_COLOR_YELLOW + "See you soon!");
                 running = false;
             }
-            if (input.startsWith("register ")) {
+            if (input.startsWith("register")) {
                 String[] parts = input.split(" ");
                 if (parts.length == 4) {
                     String username = parts[1];
@@ -27,9 +33,31 @@ public class ChessClient {
                     String email = parts[3];
                     String registerResponse = serverFacade.register(username, password, email);
                     if (registerResponse.contains("Error")) {
-                        System.out.print("Registration failed. Please try again.");
+                        System.out.print(EscapeSequences.SET_BG_COLOR_RED +
+                                "Registration failed. Please try again." +
+                                EscapeSequences.RESET_TEXT_COLOR
+                        );
                     } else {
                         System.out.print("Logged in as " + username);
+                        loggedOut = false;
+                        loggedIn = true;
+                    }
+                }
+            }
+            if (input.startsWith("login")) {
+                String[] parts = input.split(" ");
+                if (parts.length == 3) {
+                    String username = parts[1];
+                    String password = parts[2];
+                    String registerResponse = serverFacade.login(username, password);
+                    if (registerResponse.contains("Error")) {
+                        System.out.print(EscapeSequences.SET_BG_COLOR_RED +
+                                "Error logging in." +
+                                EscapeSequences.RESET_TEXT_COLOR);
+                    } else {
+                        System.out.print("Logged in as " + username);
+                        loggedOut = false;
+                        loggedIn = true;
                     }
                 }
             }

@@ -18,17 +18,21 @@ public class ServerFacade {
         reqJson.addProperty("username", username);
         reqJson.addProperty("password", password);
         reqJson.addProperty("email", email);
-        return sendPostRequest("/user", reqJson.toString(), null);
+        return sendPostRequest("/user", reqJson.toString());
     }
 
-    private String sendPostRequest(String endpoint, String jsonBody, String authToken) throws Exception {
+    public String login(String username, String password) throws Exception {
+        JsonObject reqJson = new JsonObject();
+        reqJson.addProperty("username", username);
+        reqJson.addProperty("password", password);
+        return sendPostRequest("/session", reqJson.toString());
+    }
+
+    private String sendPostRequest(String endpoint, String jsonBody) throws Exception {
         URL url = new URL(SERVER_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
-        if (authToken != null) {
-            connection.setRequestProperty("Authorization", authToken);
-        }
         connection.setDoOutput(true);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(jsonBody.getBytes());
