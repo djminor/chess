@@ -9,17 +9,16 @@ public class ChessClient {
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
         boolean loggedOut = true;
-        boolean loggedIn = false;
         boolean running = true;
         while (running) {
             if (loggedOut) {
                 System.out.print("\n[LOGGED OUT] >>>");
-            } else if (loggedIn) {
+            } else {
                 System.out.print("\n[LOGGED IN] >>>");
             }
             String input = scanner.nextLine().trim();
             if (input.equals("help")) {
-                printHelp();
+                printHelp(loggedOut);
             }
             if (input.equals("quit")) {
                 System.out.print( EscapeSequences.SET_TEXT_COLOR_YELLOW + "See you soon!");
@@ -40,7 +39,6 @@ public class ChessClient {
                     } else {
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
-                        loggedIn = true;
                     }
                 }
             }
@@ -57,33 +55,54 @@ public class ChessClient {
                     } else {
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
-                        loggedIn = true;
                     }
                 }
             }
         }
     }
 
-    public void printHelp() {
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
-                "register <USERNAME> <PASSWORD> <EMAIL>" +
-                EscapeSequences.RESET_TEXT_COLOR +
-                " - to create an account\n"
-        );
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
-                "login <USERNAME> <PASSWORD>" +
-                EscapeSequences.RESET_TEXT_COLOR +
-                " - to play chess\n"
-        );
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
-                "quit" +
-                EscapeSequences.RESET_TEXT_COLOR +
-                " - playing chess\n"
-        );
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
-                "help" +
-                EscapeSequences.RESET_TEXT_COLOR +
-                " - with possible commands"
-        );
+    public void printHelp(boolean loggedOut) {
+        String aGameText = EscapeSequences.RESET_TEXT_COLOR + " - a game\n";
+        String quitString = EscapeSequences.SET_TEXT_COLOR_BLUE + "quit" + EscapeSequences.RESET_TEXT_COLOR + " - playing chess\n";
+        String helpString = EscapeSequences.SET_TEXT_COLOR_BLUE + "help" + EscapeSequences.RESET_TEXT_COLOR + " - with possible commands\n";
+        if (loggedOut) {
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "register <USERNAME> <PASSWORD> <EMAIL>" +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    " - to create an account\n"
+            );
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "login <USERNAME> <PASSWORD>" +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    " - to play chess\n"
+            );
+            System.out.print(quitString);
+            System.out.print(helpString);
+        } else {
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "create <NAME>" +
+                    aGameText
+            );
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "list" +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    " - games\n"
+            );
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "join <ID> [WHITE|BLACK]" +
+                    aGameText
+            );
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "observe <ID>" +
+                    aGameText
+            );
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    "logout" +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    " - when you are done\n"
+            );
+            System.out.print(quitString);
+            System.out.print(helpString);
+        }
     }
 }
