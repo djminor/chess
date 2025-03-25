@@ -4,8 +4,9 @@ import java.util.Scanner;
 
 public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
+    ServerFacade serverFacade = new ServerFacade();
 
-    public void run() {
+    public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
         boolean running = true;
         while (running) {
@@ -17,6 +18,20 @@ public class ChessClient {
             if (input.equals("quit")) {
                 System.out.print( EscapeSequences.SET_TEXT_COLOR_YELLOW + "See you soon!");
                 running = false;
+            }
+            if (input.startsWith("register ")) {
+                String[] parts = input.split(" ");
+                if (parts.length == 4) {
+                    String username = parts[1];
+                    String password = parts[2];
+                    String email = parts[3];
+                    String registerResponse = serverFacade.register(username, password, email);
+                    if (registerResponse.contains("Error")) {
+                        System.out.print("Registration failed. Please try again.");
+                    } else {
+                        System.out.print("Logged in as " + username);
+                    }
+                }
             }
         }
     }
