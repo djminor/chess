@@ -11,7 +11,6 @@ import java.util.Scanner;
 
 public class ServerFacade {
     private static final String SERVER_URL = "http://localhost:8080"; // Change if needed
-    private final Gson SERIALIZER = new Gson();
 
     public String register(String username, String password, String email) throws Exception {
         JsonObject reqJson = new JsonObject();
@@ -28,6 +27,10 @@ public class ServerFacade {
         return sendPostRequest("/session", reqJson.toString());
     }
 
+    public String listGames(String authToken) throws Exception {
+        return sendGetRequest("/games", authToken);
+    }
+
     private String sendPostRequest(String endpoint, String jsonBody) throws Exception {
         URL url = new URL(SERVER_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -37,6 +40,17 @@ public class ServerFacade {
         try (OutputStream os = connection.getOutputStream()) {
             os.write(jsonBody.getBytes());
             os.flush();
+        }
+        return getResponse(connection);
+    }
+
+    private String sendGetRequest(String endpoint, String authToken) throws Exception {
+        URL url = new URL(SERVER_URL + endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Content-Type", "application/json");
+        if (authToken != null && !authToken.isEmpty()) {
+            connection.setRequestProperty("Authorization", authToken);
         }
         return getResponse(connection);
     }

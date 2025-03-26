@@ -1,10 +1,14 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
 
 public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
+    private String authToken = "";
     ServerFacade serverFacade = new ServerFacade();
+    private final Gson SERIALIZER = new Gson();
 
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
@@ -31,12 +35,14 @@ public class ChessClient {
                     String password = parts[2];
                     String email = parts[3];
                     String registerResponse = serverFacade.register(username, password, email);
+                    JsonObject jsonResponse = SERIALIZER.fromJson(registerResponse, JsonObject.class);
                     if (registerResponse.contains("Error")) {
                         System.out.print(EscapeSequences.SET_BG_COLOR_RED +
                                 "Registration failed. Please try again." +
                                 EscapeSequences.RESET_TEXT_COLOR
                         );
                     } else {
+                        authToken = jsonResponse.get("authToken").getAsString();
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
                     }
@@ -47,16 +53,22 @@ public class ChessClient {
                 if (parts.length == 3) {
                     String username = parts[1];
                     String password = parts[2];
-                    String registerResponse = serverFacade.login(username, password);
-                    if (registerResponse.contains("Error")) {
-                        System.out.print(EscapeSequences.SET_BG_COLOR_RED +
+                    String loginResponse = serverFacade.login(username, password);
+                    JsonObject jsonResponse = SERIALIZER.fromJson(loginResponse, JsonObject.class);
+                    if (loginResponse.contains("Error")) {
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error logging in." +
                                 EscapeSequences.RESET_TEXT_COLOR);
                     } else {
+                        authToken = jsonResponse.get("authToken").getAsString();
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
                     }
                 }
+            }
+            if (input.equals("list") && !loggedOut) {
+                String games = serverFacade.listGames(authToken);
+                System.out.print(games);
             }
         }
     }
