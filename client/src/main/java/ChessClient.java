@@ -58,7 +58,8 @@ public class ChessClient {
                     if (loginResponse.contains("Error")) {
                         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error logging in." +
-                                EscapeSequences.RESET_TEXT_COLOR);
+                                EscapeSequences.RESET_TEXT_COLOR
+                        );
                     } else {
                         authToken = jsonResponse.get("authToken").getAsString();
                         System.out.print("Logged in as " + username);
@@ -69,6 +70,25 @@ public class ChessClient {
             if (input.equals("list") && !loggedOut) {
                 String games = serverFacade.listGames(authToken);
                 System.out.print(games);
+            }
+            if (input.startsWith("create") && !loggedOut) {
+                String[] parts = input.split(" ");
+                if (parts.length == 2) {
+                    String gameName = parts[1];
+                    String createGameResponse = serverFacade.createGame(gameName, authToken);
+                    if (createGameResponse.contains("Error")) {
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                                "Error creating game." +
+                                EscapeSequences.RESET_TEXT_COLOR
+                        );
+                    } else {
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN +
+                                "Created game with name: " +
+                                EscapeSequences.RESET_TEXT_COLOR +
+                                gameName
+                        );
+                    }
+                }
             }
         }
     }

@@ -17,25 +17,34 @@ public class ServerFacade {
         reqJson.addProperty("username", username);
         reqJson.addProperty("password", password);
         reqJson.addProperty("email", email);
-        return sendPostRequest("/user", reqJson.toString());
+        return sendPostRequest("/user", reqJson.toString(), null);
     }
 
     public String login(String username, String password) throws Exception {
         JsonObject reqJson = new JsonObject();
         reqJson.addProperty("username", username);
         reqJson.addProperty("password", password);
-        return sendPostRequest("/session", reqJson.toString());
+        return sendPostRequest("/session", reqJson.toString(), null);
     }
 
     public String listGames(String authToken) throws Exception {
-        return sendGetRequest("/games", authToken);
+        return sendGetRequest("/game", authToken);
     }
 
-    private String sendPostRequest(String endpoint, String jsonBody) throws Exception {
+    public String createGame(String name, String authToken) throws Exception {
+        JsonObject reqJson = new JsonObject();
+        reqJson.addProperty("gameName", name);
+        return sendPostRequest("/game", reqJson.toString(), authToken);
+    }
+
+    private String sendPostRequest(String endpoint, String jsonBody, String authToken) throws Exception {
         URL url = new URL(SERVER_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
+        if (authToken != null) {
+            connection.setRequestProperty("Authorization", authToken);
+        }
         connection.setDoOutput(true);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(jsonBody.getBytes());
