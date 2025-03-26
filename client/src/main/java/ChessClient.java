@@ -1,4 +1,6 @@
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ui.EscapeSequences;
 
@@ -69,7 +71,9 @@ public class ChessClient {
             }
             if (input.equals("list") && !loggedOut) {
                 String games = serverFacade.listGames(authToken);
-                System.out.print(games);
+                JsonObject reqJson = SERIALIZER.fromJson(games, JsonObject.class);
+                JsonArray gamesArray = reqJson.getAsJsonArray("games");
+                printGames(gamesArray);
             }
             if (input.startsWith("create") && !loggedOut) {
                 String[] parts = input.split(" ");
@@ -135,6 +139,29 @@ public class ChessClient {
             );
             System.out.print(quitString);
             System.out.print(helpString);
+        }
+    }
+    private void printGames(JsonArray games) {
+        int listNumber = 1;
+        for (JsonElement gameElement : games) {
+            JsonObject game = gameElement.getAsJsonObject();
+            String gameName = game.get("gameName").getAsString();
+            String whiteUsername = game.get("whiteUsername").getAsString();
+            String blackUsername = game.get("blackUsername").getAsString();
+            System.out.print(listNumber + ". " + gameName);
+            System.out.print("\n  |\n   -- White Username: " +
+                    EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    whiteUsername +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    "\n"
+            );
+            System.out.print("  |\n   -- Black Username: " +
+                    EscapeSequences.SET_TEXT_COLOR_BLUE +
+                    blackUsername +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    "\n"
+            );
+            listNumber += 1;
         }
     }
 }
