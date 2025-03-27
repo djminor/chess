@@ -37,6 +37,14 @@ public class ServerFacade {
         return sendPostRequest("/game", reqJson.toString(), authToken);
     }
 
+    public String joinGame(String color, int id, String authToken) throws Exception {
+        JsonObject reqJson = new JsonObject();
+        reqJson.addProperty("playerColor", color);
+        reqJson.addProperty("gameID", id);
+        reqJson.addProperty("authToken", authToken);
+        return sendPutRequest("/game", reqJson.toString(), authToken);
+    }
+
     private String sendPostRequest(String endpoint, String jsonBody, String authToken) throws Exception {
         URL url = new URL(SERVER_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -60,6 +68,22 @@ public class ServerFacade {
         connection.setRequestProperty("Content-Type", "application/json");
         if (authToken != null && !authToken.isEmpty()) {
             connection.setRequestProperty("Authorization", authToken);
+        }
+        return getResponse(connection);
+    }
+
+    private String sendPutRequest(String endpoint, String jsonBody, String authToken) throws Exception {
+        URL url = new URL(SERVER_URL + endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/json");
+        if (authToken != null && !authToken.isEmpty()) {
+            connection.setRequestProperty("Authorization", authToken);
+        }
+        connection.setDoOutput(true);
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(jsonBody.getBytes());
+            os.flush();
         }
         return getResponse(connection);
     }

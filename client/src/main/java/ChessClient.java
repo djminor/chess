@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
     private String authToken = "";
+    private String globalUsername = "";
     ServerFacade serverFacade = new ServerFacade();
     private final Gson SERIALIZER = new Gson();
 
@@ -64,7 +65,9 @@ public class ChessClient {
                         );
                     } else {
                         authToken = jsonResponse.get("authToken").getAsString();
-                        System.out.print("Logged in as " + username);
+                        globalUsername = username;
+                        System.out.print("Logged in as " + username + "\n");
+                        System.out.print(authToken);
                         loggedOut = false;
                     }
                 }
@@ -90,6 +93,33 @@ public class ChessClient {
                                 "Created game with name: " +
                                 EscapeSequences.RESET_TEXT_COLOR +
                                 gameName
+                        );
+                    }
+                }
+            }
+            if (input.startsWith("join") && !loggedOut) {
+                String[] parts = input.split(" ");
+                if (parts.length == 3) {
+                    int gameId = Integer.parseInt(parts[1]);
+                    String userColor = parts[2];
+                    String joinGameResponse = serverFacade.joinGame(userColor, gameId, authToken);
+                    if (joinGameResponse.contains("Error")) {
+                        System.out.print(authToken);
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                                "Error joining game." +
+                                EscapeSequences.RESET_TEXT_COLOR
+                        );
+                    } else {
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN +
+                                "Joined game with id " +
+                                EscapeSequences.RESET_TEXT_COLOR +
+                                gameId +
+                                EscapeSequences.SET_TEXT_COLOR_GREEN +
+                                " and set " +
+                                userColor +
+                                " username to " +
+                                EscapeSequences.RESET_TEXT_COLOR +
+                                globalUsername
                         );
                     }
                 }
@@ -148,7 +178,7 @@ public class ChessClient {
             String gameName = game.get("gameName").getAsString();
             String whiteUsername = game.get("whiteUsername").getAsString();
             String blackUsername = game.get("blackUsername").getAsString();
-            System.out.print(listNumber + ". " + gameName);
+            System.out.print(listNumber + ". " + EscapeSequences.SET_TEXT_COLOR_BLUE + gameName + EscapeSequences.RESET_TEXT_COLOR);
             System.out.print("\n  |\n   -- White Username: " +
                     EscapeSequences.SET_TEXT_COLOR_BLUE +
                     whiteUsername +
