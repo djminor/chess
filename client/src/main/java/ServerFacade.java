@@ -27,6 +27,12 @@ public class ServerFacade {
         return sendPostRequest("/session", reqJson.toString(), null);
     }
 
+    public String logout(String authToken) throws Exception {
+        JsonObject reqJson = new JsonObject();
+        reqJson.addProperty("Authorization", authToken);
+        return sendDeleteRequest("/session", authToken);
+    }
+
     public String listGames(String authToken) throws Exception {
         return sendGetRequest("/game", authToken);
     }
@@ -84,6 +90,17 @@ public class ServerFacade {
         try (OutputStream os = connection.getOutputStream()) {
             os.write(jsonBody.getBytes());
             os.flush();
+        }
+        return getResponse(connection);
+    }
+
+    private String sendDeleteRequest(String endPoint, String authToken) throws Exception {
+        URL url = new URL(SERVER_URL + endPoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Content-Type", "application/json");
+        if (authToken != null && !authToken.isEmpty()) {
+            connection.setRequestProperty("Authorization", authToken);
         }
         return getResponse(connection);
     }

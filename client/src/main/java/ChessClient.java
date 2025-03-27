@@ -67,7 +67,6 @@ public class ChessClient {
                         authToken = jsonResponse.get("authToken").getAsString();
                         globalUsername = username;
                         System.out.print("Logged in as " + username + "\n");
-                        System.out.print(authToken);
                         loggedOut = false;
                     }
                 }
@@ -122,6 +121,25 @@ public class ChessClient {
                                 globalUsername
                         );
                     }
+                }
+            }
+            if (input.equals("logout") && !loggedOut) {
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                        "Logging out..." +
+                        EscapeSequences.RESET_TEXT_COLOR
+                );
+                String logoutResponse = serverFacade.logout(authToken);
+                if(logoutResponse.contains("Error")) {
+                    System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                            "Error logging out" +
+                            EscapeSequences.RESET_TEXT_COLOR
+                    );
+                } else {
+                    System.out.print(EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                            "\nSuccess!" +
+                            EscapeSequences.RESET_TEXT_COLOR
+                    );
+                    loggedOut = true;
                 }
             }
         }
