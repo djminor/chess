@@ -1,9 +1,13 @@
+import chess.ChessBoard;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ui.EscapeSequences;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -12,6 +16,7 @@ public class ChessClient {
     private String globalUsername = "";
     ServerFacade serverFacade = new ServerFacade();
     private final Gson SERIALIZER = new Gson();
+    private ChessBoard board = new ChessBoard();
 
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
@@ -70,6 +75,12 @@ public class ChessClient {
                         loggedOut = false;
                     }
                 }
+                else {
+                    System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                            "Expected 3 arguments but got " +
+                            EscapeSequences.RESET_TEXT_COLOR +
+                            parts.length);
+                }
             }
             if (input.equals("list") && !loggedOut) {
                 String games = serverFacade.listGames(authToken);
@@ -103,7 +114,6 @@ public class ChessClient {
                     String userColor = parts[2];
                     String joinGameResponse = serverFacade.joinGame(userColor, gameId, authToken);
                     if (joinGameResponse.contains("Error")) {
-                        System.out.print(authToken);
                         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error joining game." +
                                 EscapeSequences.RESET_TEXT_COLOR
@@ -118,8 +128,10 @@ public class ChessClient {
                                 userColor +
                                 " username to " +
                                 EscapeSequences.RESET_TEXT_COLOR +
-                                globalUsername
+                                globalUsername +
+                                "\n"
                         );
+                        displayBoard(userColor);
                     }
                 }
             }
@@ -211,5 +223,50 @@ public class ChessClient {
             );
             listNumber += 1;
         }
+    }
+    public void displayBoard(String playerColor) {
+        board.resetBoard();
+
+        System.out.println("    A  B  C  D  E  F  G  H  ");
+        System.out.println("  +------------------------+");
+
+        boolean isWhite = Objects.equals(playerColor, "WHITE");
+
+        for (int row = (isWhite ? 1 : 8); (isWhite ? row <= 8 : row >= 1); row += (isWhite ? 1 : -1)) {
+            System.out.print((9 - row) + " |");
+            for (int col = (isWhite ? 1 : 8); (isWhite ? col <= 8 : col >= 1); col += (isWhite ? 1 : -1)) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                String bgColor = ((row + col) % 2 == 0) ? EscapeSequences.SET_BG_COLOR_WHITE : EscapeSequences.SET_BG_COLOR_BLACK;
+                String printCharacter = printSquare(piece);
+                System.out.print(bgColor + printCharacter + EscapeSequences.RESET_BG_COLOR);
+            }
+            System.out.println("| " + (9 - row));
+        }
+
+        System.out.println("  +------------------------+");
+        System.out.println("    A  B  C  D  E  F  G  H  ");
+    }
+
+
+    private String printSquare(ChessPiece piece) {
+        if (piece != null) {
+            String color = piece.getTeamColor().toString();
+            switch (piece.getPieceType().toString()) {
+                case "PAWN":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_PAWN : EscapeSequences.BLACK_PAWN;
+                case "KNIGHT":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_KNIGHT : EscapeSequences.BLACK_KNIGHT;
+                case "BISHOP":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_BISHOP : EscapeSequences.BLACK_BISHOP;
+                case "ROOK":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_ROOK : EscapeSequences.BLACK_ROOK;
+                case "QUEEN":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_QUEEN : EscapeSequences.BLACK_QUEEN;
+                case "KING":
+                    return color.equals("WHITE") ? EscapeSequences.WHITE_KING : EscapeSequences.BLACK_KING;
+            }
+
+        }
+        return EscapeSequences.EMPTY;
     }
 }
