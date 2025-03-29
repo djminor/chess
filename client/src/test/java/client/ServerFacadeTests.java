@@ -124,4 +124,16 @@ public class ServerFacadeTests {
         assertTrue(createResult.contains("Error"));
     }
 
+    @Test
+    @DisplayName("Join - Positive Test")
+    public void joinSuccessTest() throws Exception {
+        facade.register("validUser", "password", "hello@world.com");
+        var authData = facade.login("validUser", "password");
+        JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
+        String authToken = jsonResponse.get("authToken").getAsString();
+        facade.createGame("testGame", authToken);
+        String joinResult = facade.joinGame("WHITE", 1, authToken);
+        assertFalse(joinResult.contains("Error"));
+    }
+
 }
