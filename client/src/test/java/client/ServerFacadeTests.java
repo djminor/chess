@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -76,7 +77,14 @@ public class ServerFacadeTests {
         JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
         String authToken = jsonResponse.get("authToken").getAsString();
         var logoutResult = facade.logout(authToken);
-        assertTrue(!logoutResult.contains("Error"));
+        assertFalse(logoutResult.contains("Error"));
+    }
+
+    @Test
+    @DisplayName("Logout - Negative Test")
+    public void logoutFailureTest() throws Exception {
+        var logoutResult = facade.logout("fake token");
+        assertTrue(logoutResult.contains("Error"));
     }
 
 }
