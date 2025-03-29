@@ -57,4 +57,11 @@ public class ServerFacadeTests {
         assertTrue(authData.length() > 10);
     }
 
+    @Test
+    @DisplayName("Login - Negative Test")
+    public void loginFailureTest() throws Exception {
+        var authData = facade.login("validUser", "password");
+        assertTrue(authData.contains("Error"));
+    }
+
 }
