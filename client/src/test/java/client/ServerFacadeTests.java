@@ -106,4 +106,15 @@ public class ServerFacadeTests {
         assertTrue(listResult.contains("Error"));
     }
 
+    @Test
+    @DisplayName("Create - Positive Test")
+    public void createSuccessTest() throws Exception {
+        facade.register("validUser", "password", "hello@world.com");
+        var authData = facade.login("validUser", "password");
+        JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
+        String authToken = jsonResponse.get("authToken").getAsString();
+        String createResult = facade.createGame("testGame", authToken);
+        assertTrue(!createResult.contains("Error"));
+    }
+
 }
