@@ -136,4 +136,11 @@ public class ServerFacadeTests {
         assertFalse(joinResult.contains("Error"));
     }
 
+    @Test
+    @DisplayName("Join - Negative Test")
+    public void joinFailureTest() throws Exception {
+        String joinResult = facade.joinGame("WHITE", 1, "fake token");
+        assertTrue(joinResult.contains("Error"));
+    }
+
 }
