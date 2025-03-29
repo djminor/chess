@@ -1,4 +1,4 @@
-import com.google.gson.Gson;
+package ui;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -10,7 +10,13 @@ import java.util.Scanner;
 
 
 public class ServerFacade {
-    private static final String SERVER_URL = "http://localhost:8080"; // Change if needed
+    private static String SERVER_URL = "http://localhost:";
+
+    public ServerFacade(int port) {
+        String portString = String.valueOf(port);
+        SERVER_URL += portString;
+        SERVER_URL += "/";
+    }
 
     public String register(String username, String password, String email) throws Exception {
         JsonObject reqJson = new JsonObject();

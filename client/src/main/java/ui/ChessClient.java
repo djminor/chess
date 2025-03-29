@@ -1,3 +1,5 @@
+package ui;
+
 import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -5,7 +7,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import ui.EscapeSequences;
 
 import java.util.Objects;
 import java.util.Scanner;
@@ -14,7 +15,8 @@ public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
     private String authToken = "";
     private String globalUsername = "";
-    ServerFacade serverFacade = new ServerFacade();
+    private final int SERVER_PORT = 8080;
+    ServerFacade serverFacade = new ServerFacade(SERVER_PORT);
     private final Gson SERIALIZER = new Gson();
     private final ChessBoard board = new ChessBoard();
 
@@ -179,7 +181,7 @@ public class ChessClient {
         }
     }
 
-    public void printHelp(boolean loggedOut) {
+    private void printHelp(boolean loggedOut) {
         String aGameText = EscapeSequences.RESET_TEXT_COLOR + " - a game\n";
         String quitString = EscapeSequences.SET_TEXT_COLOR_BLUE + "quit" + EscapeSequences.RESET_TEXT_COLOR + " - playing chess\n";
         String helpString = EscapeSequences.SET_TEXT_COLOR_BLUE + "help" + EscapeSequences.RESET_TEXT_COLOR + " - with possible commands\n";
