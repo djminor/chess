@@ -73,13 +73,13 @@ public class ChessClient {
                     String username = parts[1];
                     String password = parts[2];
                     String loginResponse = serverFacade.login(username, password);
-                    JsonObject jsonResponse = SERIALIZER.fromJson(loginResponse, JsonObject.class);
                     if (loginResponse.contains("Error")) {
                         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error logging in." +
                                 EscapeSequences.RESET_TEXT_COLOR
                         );
                     } else {
+                        JsonObject jsonResponse = SERIALIZER.fromJson(loginResponse, JsonObject.class);
                         authToken = jsonResponse.get("authToken").getAsString();
                         globalUsername = username;
                         System.out.print("Logged in as " + username + "\n");
@@ -95,6 +95,12 @@ public class ChessClient {
                 String games = serverFacade.listGames(authToken);
                 JsonObject reqJson = SERIALIZER.fromJson(games, JsonObject.class);
                 JsonArray gamesArray = reqJson.getAsJsonArray("games");
+                if (gamesArray.isEmpty()) {
+                    System.out.print(EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                            "No games to list!" +
+                            EscapeSequences.RESET_TEXT_COLOR
+                    );
+                }
                 printGames(gamesArray);
             }
             if (input.startsWith("create") && !loggedOut) {
@@ -239,25 +245,28 @@ public class ChessClient {
         int listNumber = 1;
         for (JsonElement gameElement : games) {
             JsonObject game = gameElement.getAsJsonObject();
-            String gameName = game.get("gameName").getAsString();
-            String whiteUsername = game.get("whiteUsername").getAsString();
-            String blackUsername = game.get("blackUsername").getAsString();
+            String gameName = game.has("gameName") && !game.get("gameName").isJsonNull() ? game.get("gameName").getAsString() : "Unknown Game";
+            String whiteUsername = game.has("whiteUsername") &&
+                    !game.get("whiteUsername").isJsonNull() ?
+                    game.get("whiteUsername").getAsString() : "N/A";
+            String blackUsername = game.has("blackUsername") &&
+                    !game.get("blackUsername").isJsonNull() ?
+                    game.get("blackUsername").getAsString() : "N/A";
             System.out.print(listNumber + ". " + EscapeSequences.SET_TEXT_COLOR_BLUE + gameName + EscapeSequences.RESET_TEXT_COLOR);
             System.out.print("\n  |\n   -- White Username: " +
                     EscapeSequences.SET_TEXT_COLOR_BLUE +
                     whiteUsername +
                     EscapeSequences.RESET_TEXT_COLOR +
-                    "\n"
-            );
-            System.out.print("  |\n   -- Black Username: " +
+                    "\n   -- Black Username: " +
                     EscapeSequences.SET_TEXT_COLOR_BLUE +
                     blackUsername +
                     EscapeSequences.RESET_TEXT_COLOR +
                     "\n"
             );
-            listNumber += 1;
+            listNumber++;
         }
     }
+
     private void displayBoard(String playerColor) {
         board.resetBoard();
 
