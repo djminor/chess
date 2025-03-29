@@ -16,12 +16,13 @@ public class ChessClient {
     private String globalUsername = "";
     ServerFacade serverFacade = new ServerFacade();
     private final Gson SERIALIZER = new Gson();
-    private ChessBoard board = new ChessBoard();
+    private final ChessBoard board = new ChessBoard();
 
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
         boolean loggedOut = true;
         boolean running = true;
+        boolean validInput = false;
         while (running) {
             if (loggedOut) {
                 System.out.print("\n[LOGGED OUT] >>>");
@@ -30,15 +31,19 @@ public class ChessClient {
             }
             String input = scanner.nextLine().trim();
             if (input.equals("help")) {
+                validInput = true;
                 printHelp(loggedOut);
             }
             if (input.equals("quit")) {
+                validInput = true;
                 System.out.print( EscapeSequences.SET_TEXT_COLOR_YELLOW + "See you soon!");
                 running = false;
             }
             if (input.startsWith("register")) {
+                validInput = true;
                 String[] parts = input.split(" ");
-                if (parts.length == 4) {
+                int expectedLength = 4;
+                if (parts.length == expectedLength) {
                     String username = parts[1];
                     String password = parts[2];
                     String email = parts[3];
@@ -54,11 +59,15 @@ public class ChessClient {
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
                     }
+                } else {
+                    badInputLength(expectedLength, parts.length);
                 }
             }
             if (input.startsWith("login")) {
+                validInput = true;
                 String[] parts = input.split(" ");
-                if (parts.length == 3) {
+                int expectedLength = 3;
+                if (parts.length == expectedLength) {
                     String username = parts[1];
                     String password = parts[2];
                     String loginResponse = serverFacade.login(username, password);
@@ -76,21 +85,21 @@ public class ChessClient {
                     }
                 }
                 else {
-                    System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
-                            "Expected 3 arguments but got " +
-                            EscapeSequences.RESET_TEXT_COLOR +
-                            parts.length);
+                    badInputLength(expectedLength, parts.length);
                 }
             }
             if (input.equals("list") && !loggedOut) {
+                validInput = true;
                 String games = serverFacade.listGames(authToken);
                 JsonObject reqJson = SERIALIZER.fromJson(games, JsonObject.class);
                 JsonArray gamesArray = reqJson.getAsJsonArray("games");
                 printGames(gamesArray);
             }
             if (input.startsWith("create") && !loggedOut) {
+                validInput = true;
                 String[] parts = input.split(" ");
-                if (parts.length == 2) {
+                int expectedLength = 2;
+                if (parts.length == expectedLength) {
                     String gameName = parts[1];
                     String createGameResponse = serverFacade.createGame(gameName, authToken);
                     if (createGameResponse.contains("Error")) {
@@ -105,11 +114,15 @@ public class ChessClient {
                                 gameName
                         );
                     }
+                } else {
+                    badInputLength(expectedLength, parts.length);
                 }
             }
             if (input.startsWith("join") && !loggedOut) {
+                validInput = true;
                 String[] parts = input.split(" ");
-                if (parts.length == 3) {
+                int expectedLength = 3;
+                if (parts.length == expectedLength) {
                     int gameId = Integer.parseInt(parts[1]);
                     String userColor = parts[2];
                     String joinGameResponse = serverFacade.joinGame(userColor, gameId, authToken);
@@ -133,9 +146,12 @@ public class ChessClient {
                         );
                         displayBoard(userColor);
                     }
+                } else {
+                    badInputLength(expectedLength, parts.length);
                 }
             }
             if (input.equals("logout") && !loggedOut) {
+                validInput = true;
                 System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
                         "Logging out..." +
                         EscapeSequences.RESET_TEXT_COLOR
@@ -153,6 +169,12 @@ public class ChessClient {
                     );
                     loggedOut = true;
                 }
+            }
+            else if (!input.isEmpty() && !validInput){
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                        "Unrecognized input. Type 'help' to see list of commands" +
+                        EscapeSequences.RESET_TEXT_COLOR
+                );
             }
         }
     }
@@ -224,7 +246,7 @@ public class ChessClient {
             listNumber += 1;
         }
     }
-    public void displayBoard(String playerColor) {
+    private void displayBoard(String playerColor) {
         board.resetBoard();
 
         System.out.println("    A  B  C  D  E  F  G  H  ");
@@ -268,5 +290,16 @@ public class ChessClient {
 
         }
         return EscapeSequences.EMPTY;
+    }
+
+    private void badInputLength(int expectedLength, int realLength) {
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                "Expected " + EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                expectedLength + EscapeSequences.SET_TEXT_COLOR_RED +
+                " arguments but got " +
+                EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                realLength +
+                EscapeSequences.RESET_TEXT_COLOR
+            );
     }
 }
