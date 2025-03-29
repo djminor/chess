@@ -87,4 +87,16 @@ public class ServerFacadeTests {
         assertTrue(logoutResult.contains("Error"));
     }
 
+    @Test
+    @DisplayName("List - Positive Test")
+    public void listSuccessTest() throws Exception {
+        facade.register("validUser", "password", "hello@world.com");
+        var authData = facade.login("validUser", "password");
+        JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
+        String authToken = jsonResponse.get("authToken").getAsString();
+        facade.createGame("testGame", authToken);
+        String listResult = facade.listGames(authToken);
+        assertFalse(listResult.isEmpty());
+    }
+
 }
