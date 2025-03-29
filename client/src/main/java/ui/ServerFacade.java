@@ -10,12 +10,12 @@ import java.util.Scanner;
 
 
 public class ServerFacade {
-    private static String SERVER_URL = "http://localhost:";
+    private static String serverUrl = "http://localhost:";
 
     public ServerFacade(int port) {
         String portString = String.valueOf(port);
-        SERVER_URL += portString;
-        SERVER_URL += "/";
+        serverUrl += portString;
+        serverUrl += "/";
     }
 
     public String register(String username, String password, String email) throws Exception {
@@ -58,7 +58,7 @@ public class ServerFacade {
     }
 
     private String sendPostRequest(String endpoint, String jsonBody, String authToken) throws Exception {
-        URL url = new URL(SERVER_URL + endpoint);
+        URL url = new URL(serverUrl + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
@@ -74,7 +74,7 @@ public class ServerFacade {
     }
 
     private String sendGetRequest(String endpoint, String authToken) throws Exception {
-        URL url = new URL(SERVER_URL + endpoint);
+        URL url = new URL(serverUrl + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Content-Type", "application/json");
@@ -85,7 +85,7 @@ public class ServerFacade {
     }
 
     private String sendPutRequest(String endpoint, String jsonBody, String authToken) throws Exception {
-        URL url = new URL(SERVER_URL + endpoint);
+        URL url = new URL(serverUrl + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");
@@ -101,7 +101,7 @@ public class ServerFacade {
     }
 
     private String sendDeleteRequest(String endPoint, String authToken) throws Exception {
-        URL url = new URL(SERVER_URL + endPoint);
+        URL url = new URL(serverUrl + endPoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Content-Type", "application/json");

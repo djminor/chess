@@ -18,7 +18,7 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade facade;
     ClearDataAccess clearDataAccess = new ClearDataAccess();
-    Gson SERIALIZER = new Gson();
+    private static final Gson SERIALIZER = new Gson();
 
 
 

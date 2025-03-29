@@ -15,9 +15,9 @@ public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
     private String authToken = "";
     private String globalUsername = "";
-    private final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 8080;
     ServerFacade serverFacade = new ServerFacade(SERVER_PORT);
-    private final Gson SERIALIZER = new Gson();
+    private static final Gson SERIALIZER = new Gson();
     private final ChessBoard board = new ChessBoard();
 
     public void run() throws Exception {
