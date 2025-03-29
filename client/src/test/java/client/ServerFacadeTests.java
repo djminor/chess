@@ -99,4 +99,11 @@ public class ServerFacadeTests {
         assertFalse(listResult.isEmpty());
     }
 
+    @Test
+    @DisplayName("List - Negative Test")
+    public void listFailureTest() throws Exception {
+        String listResult = facade.listGames("Fake token");
+        assertTrue(listResult.contains("Error"));
+    }
+
 }
