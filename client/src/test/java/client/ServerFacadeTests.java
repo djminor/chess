@@ -114,7 +114,14 @@ public class ServerFacadeTests {
         JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
         String authToken = jsonResponse.get("authToken").getAsString();
         String createResult = facade.createGame("testGame", authToken);
-        assertTrue(!createResult.contains("Error"));
+        assertFalse(createResult.contains("Error"));
+    }
+
+    @Test
+    @DisplayName("Create - Negative Test")
+    public void createFailureTest() throws Exception {
+        String createResult = facade.createGame("testGame", "fake token");
+        assertTrue(createResult.contains("Error"));
     }
 
 }
