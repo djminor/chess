@@ -1,9 +1,11 @@
 package client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dataaccess.ClearDataAccess;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperties;
 import server.Server;
 import ui.ServerFacade;
 
@@ -15,6 +17,8 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade facade;
     ClearDataAccess clearDataAccess = new ClearDataAccess();
+    Gson SERIALIZER = new Gson();
+
 
 
     @BeforeAll
@@ -62,6 +66,17 @@ public class ServerFacadeTests {
     public void loginFailureTest() throws Exception {
         var authData = facade.login("validUser", "password");
         assertTrue(authData.contains("Error"));
+    }
+
+    @Test
+    @DisplayName("Logout - Positive Test")
+    public void logoutSuccessTest() throws Exception {
+        facade.register("validUser", "password", "hello@world.com");
+        var authData = facade.login("validUser", "password");
+        JsonObject jsonResponse = SERIALIZER.fromJson(authData, JsonObject.class);
+        String authToken = jsonResponse.get("authToken").getAsString();
+        var logoutResult = facade.logout(authToken);
+        assertTrue(!logoutResult.contains("Error"));
     }
 
 }
