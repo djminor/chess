@@ -172,6 +172,16 @@ public class ChessClient {
                     loggedOut = true;
                 }
             }
+            if (input.startsWith("observe") && !loggedOut) {
+                validInput = true;
+                String[] parts = input.split(" ");
+                int expectedLength = 2;
+                if (parts.length == expectedLength) {
+                    displayBoard("WHITE");
+                } else {
+                    badInputLength(expectedLength, parts.length);
+                }
+            }
             else if (!input.isEmpty() && !validInput){
                 System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                         "Unrecognized input. Type 'help' to see list of commands" +
