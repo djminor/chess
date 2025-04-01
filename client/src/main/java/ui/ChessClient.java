@@ -8,6 +8,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -19,6 +21,7 @@ public class ChessClient {
     ServerFacade serverFacade = new ServerFacade(SERVER_PORT);
     private static final Gson SERIALIZER = new Gson();
     private final ChessBoard board = new ChessBoard();
+    private final Map<Integer, Integer> gameNumberToIdMap = new HashMap<>();
 
     public void run() throws Exception {
         System.out.print("♕ Welcome to 240 chess. Type 'help' to get started ♕");
@@ -50,13 +53,13 @@ public class ChessClient {
                     String password = parts[2];
                     String email = parts[3];
                     String registerResponse = serverFacade.register(username, password, email);
-                    JsonObject jsonResponse = SERIALIZER.fromJson(registerResponse, JsonObject.class);
                     if (registerResponse.contains("Error")) {
-                        System.out.print(EscapeSequences.SET_BG_COLOR_RED +
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Registration failed. Please try again." +
                                 EscapeSequences.RESET_TEXT_COLOR
                         );
                     } else {
+                        JsonObject jsonResponse = SERIALIZER.fromJson(registerResponse, JsonObject.class);
                         authToken = jsonResponse.get("authToken").getAsString();
                         System.out.print("Logged in as " + username);
                         loggedOut = false;
@@ -131,28 +134,43 @@ public class ChessClient {
                 String[] parts = input.split(" ");
                 int expectedLength = 3;
                 if (parts.length == expectedLength) {
-                    int gameId = Integer.parseInt(parts[1]);
-                    String userColor = parts[2];
-                    String joinGameResponse = serverFacade.joinGame(userColor, gameId, authToken);
-                    if (joinGameResponse.contains("Error")) {
+                    try {
+                        int listNumber = Integer.parseInt(parts[1]);
+                        int gameId = gameNumberToIdMap.getOrDefault(listNumber, -1);
+                        String userColor = parts[2];
+                        if (gameId == -1) {
+                            System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                                    "Game number out of bounds. Please check the list and try again." +
+                                    EscapeSequences.RESET_TEXT_COLOR
+                            );
+                        }
+                        String joinGameResponse = serverFacade.joinGame(userColor, gameId, authToken);
+                        if (joinGameResponse.contains("Error")) {
+                            System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                                    "Error joining game." +
+                                    EscapeSequences.RESET_TEXT_COLOR
+                            );
+                        }
+                        if (!joinGameResponse.contains("Error") && gameId != -1){
+                            System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN +
+                                    "Joined game with id " +
+                                    EscapeSequences.RESET_TEXT_COLOR +
+                                    gameId +
+                                    EscapeSequences.SET_TEXT_COLOR_GREEN +
+                                    " and set " +
+                                    userColor +
+                                    " username to " +
+                                    EscapeSequences.RESET_TEXT_COLOR +
+                                    globalUsername +
+                                    "\n"
+                            );
+                            displayBoard(userColor);
+                        }
+                    } catch (NumberFormatException e) {
                         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
-                                "Error joining game." +
-                                EscapeSequences.RESET_TEXT_COLOR
+                                "Invalid number format. Please enter a valid game number." +
+                                EscapeSequences.RESET_TEXT_COLOR + "\n"
                         );
-                    } else {
-                        System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                                "Joined game with id " +
-                                EscapeSequences.RESET_TEXT_COLOR +
-                                gameId +
-                                EscapeSequences.SET_TEXT_COLOR_GREEN +
-                                " and set " +
-                                userColor +
-                                " username to " +
-                                EscapeSequences.RESET_TEXT_COLOR +
-                                globalUsername +
-                                "\n"
-                        );
-                        displayBoard(userColor);
                     }
                 } else {
                     badInputLength(expectedLength, parts.length);
@@ -182,10 +200,25 @@ public class ChessClient {
                 validInput = true;
                 String[] parts = input.split(" ");
                 int expectedLength = 2;
-                if (parts.length == expectedLength) {
-                    displayBoard("WHITE");
-                } else {
-                    badInputLength(expectedLength, parts.length);
+                try {
+                    int listNumber = Integer.parseInt(parts[1]);
+                    int gameId = gameNumberToIdMap.getOrDefault(listNumber, -1);
+                    if (gameId == -1) {
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                                "Game number out of bounds. Please check the list and try again." +
+                                EscapeSequences.RESET_TEXT_COLOR
+                        );
+                    }
+                    else if (parts.length == expectedLength) {
+                        displayBoard("WHITE");
+                    } else {
+                        badInputLength(expectedLength, parts.length);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
+                            "Invalid number format. Please enter a valid game number." +
+                            EscapeSequences.RESET_TEXT_COLOR + "\n"
+                    );
                 }
             }
             else if (!input.isEmpty() && !validInput){
@@ -242,9 +275,11 @@ public class ChessClient {
         }
     }
     private void printGames(JsonArray games) {
+        gameNumberToIdMap.clear();
         int listNumber = 1;
         for (JsonElement gameElement : games) {
             JsonObject game = gameElement.getAsJsonObject();
+            int gameId = game.has("gameID") && !game.get("gameID").isJsonNull() ? game.get("gameID").getAsInt() : -1;
             String gameName = game.has("gameName") && !game.get("gameName").isJsonNull() ? game.get("gameName").getAsString() : "Unknown Game";
             String whiteUsername = game.has("whiteUsername") &&
                     !game.get("whiteUsername").isJsonNull() ?
@@ -252,6 +287,7 @@ public class ChessClient {
             String blackUsername = game.has("blackUsername") &&
                     !game.get("blackUsername").isJsonNull() ?
                     game.get("blackUsername").getAsString() : "N/A";
+            gameNumberToIdMap.put(listNumber, gameId);
             System.out.print(listNumber + ". " + EscapeSequences.SET_TEXT_COLOR_BLUE + gameName + EscapeSequences.RESET_TEXT_COLOR);
             System.out.print("\n  |\n   -- White Username: " +
                     EscapeSequences.SET_TEXT_COLOR_BLUE +
@@ -266,14 +302,13 @@ public class ChessClient {
             listNumber++;
         }
     }
-
     private void displayBoard(String playerColor) {
         board.resetBoard();
-
-        System.out.println("    A  B  C  D  E  F  G  H  ");
+        boolean isWhite = Objects.equals(playerColor, "WHITE");
+        String columnHeaders = isWhite ? "    A  B  C  D  E  F  G  H  " : "    H  G  F  E  D  C  B  A  ";
+        System.out.println(columnHeaders);
         System.out.println("  +------------------------+");
 
-        boolean isWhite = Objects.equals(playerColor, "WHITE");
 
         for (int row = (isWhite ? 1 : 8); (isWhite ? row <= 8 : row >= 1); row += (isWhite ? 1 : -1)) {
             System.out.print((9 - row) + " |");
@@ -287,7 +322,7 @@ public class ChessClient {
         }
 
         System.out.println("  +------------------------+");
-        System.out.println("    A  B  C  D  E  F  G  H  ");
+        System.out.println(columnHeaders);
     }
 
 
@@ -296,17 +331,17 @@ public class ChessClient {
             String color = piece.getTeamColor().toString();
             switch (piece.getPieceType().toString()) {
                 case "PAWN":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_PAWN : EscapeSequences.BLACK_PAWN;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_PAWN : EscapeSequences.WHITE_PAWN;
                 case "KNIGHT":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_KNIGHT : EscapeSequences.BLACK_KNIGHT;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_KNIGHT : EscapeSequences.WHITE_KNIGHT;
                 case "BISHOP":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_BISHOP : EscapeSequences.BLACK_BISHOP;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_BISHOP : EscapeSequences.WHITE_BISHOP;
                 case "ROOK":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_ROOK : EscapeSequences.BLACK_ROOK;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_ROOK : EscapeSequences.WHITE_ROOK;
                 case "QUEEN":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_QUEEN : EscapeSequences.BLACK_QUEEN;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_QUEEN : EscapeSequences.WHITE_QUEEN;
                 case "KING":
-                    return color.equals("WHITE") ? EscapeSequences.WHITE_KING : EscapeSequences.BLACK_KING;
+                    return color.equals("WHITE") ? EscapeSequences.BLACK_KING : EscapeSequences.WHITE_KING;
             }
 
         }
@@ -314,6 +349,8 @@ public class ChessClient {
     }
 
     private void badInputLength(int expectedLength, int realLength) {
+        expectedLength -= 1;
+        realLength -= 1;
         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED +
                 "Expected " + EscapeSequences.SET_TEXT_COLOR_YELLOW +
                 expectedLength + EscapeSequences.SET_TEXT_COLOR_RED +
