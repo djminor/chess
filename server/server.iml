@@ -17,6 +17,7 @@
     <orderEntry type="library" name="slf4j.simple" level="project" />
     <orderEntry type="library" name="mindrot.jbcrypt" level="project" />
     <orderEntry type="library" name="mysql.connector.java" level="project" />
+    <orderEntry type="library" name="glassfish.tyrus.bundles.standalone.client" level="project" />
   </component>
   <component name="SonarLintModuleSettings">
     <option name="uniqueId" value="5d1b49e9-d6c8-4aaa-a5de-9d2c62d6265e" />
