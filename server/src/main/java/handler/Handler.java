@@ -118,23 +118,25 @@ public class Handler {
         int gameID = reqJson.get("gameID").getAsInt();
         String playerColor = reqJson.get("playerColor").getAsString();
         JoinGameResult result = userService.joinGame(new JoinGameRequest(authToken, playerColor, gameID));
-        if (Objects.equals(result.errorMessage(), "Invalid color")) {
-            response.status(400);
-            JsonObject errorJson = new JsonObject();
-            errorJson.addProperty("message", "Error: bad request");
-            return SERIALIZER.toJson(errorJson);
-        }
-        if (Objects.equals(result.errorMessage(), "Error")) {
-            response.status(401);
-            JsonObject errorJson = new JsonObject();
-            errorJson.addProperty("message", "Error: Unauthorized");
-            return SERIALIZER.toJson(errorJson);
-        }
-        if (Objects.equals(result.errorMessage(), "Steal")) {
-            response.status(403);
-            JsonObject errorJson = new JsonObject();
-            errorJson.addProperty("message", "Error: Team already taken");
-            return SERIALIZER.toJson(errorJson);
+        if (result instanceof JoinGameResult.Failure(String errorMessage)) {
+            if (Objects.equals(errorMessage, "Invalid color")) {
+                response.status(400);
+                JsonObject errorJson = new JsonObject();
+                errorJson.addProperty("message", "Error: bad request");
+                return SERIALIZER.toJson(errorJson);
+            }
+            if (Objects.equals(errorMessage, "Error")) {
+                response.status(401);
+                JsonObject errorJson = new JsonObject();
+                errorJson.addProperty("message", "Error: Unauthorized");
+                return SERIALIZER.toJson(errorJson);
+            }
+            if (Objects.equals(errorMessage, "Steal")) {
+                response.status(403);
+                JsonObject errorJson = new JsonObject();
+                errorJson.addProperty("message", "Error: Team already taken");
+                return SERIALIZER.toJson(errorJson);
+            }
         }
         response.status(200);
         return SERIALIZER.toJson(result);

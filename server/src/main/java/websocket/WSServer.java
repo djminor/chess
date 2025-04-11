@@ -16,7 +16,6 @@ public class WSServer {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        System.out.printf("Received: %s", message);
         JsonObject request = serializer.fromJson(message, JsonObject.class);
         String commandType = request.get("commandType").getAsString();
         String authToken = request.get("authToken").getAsString();
@@ -27,11 +26,13 @@ public class WSServer {
         if (commandType.equals("CONNECT")) {
             JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, "WHITE", gameID);
             JoinGameResult joinGameResult = userService.joinGame(joinGameRequest);
-            response.addProperty("serverMessageType", "LOAD_GAME");
-            response.addProperty("game", String.valueOf(joinGameResult));
-        } else {
-            response.addProperty("serverMessageType", "ERROR");
-            response.addProperty("errorMessage", "Unknown command type: " + commandType);
+            if (joinGameResult instanceof JoinGameResult.Success(String game)) {
+                response.addProperty("serverMessageType", "LOAD_GAME");
+                response.addProperty("game", game);
+            } else {
+                response.addProperty("serverMessageType", "ERROR");
+                response.addProperty("errorMessage", "Unknown command type: " + commandType);
+            }
         }
 
         session.getRemote().sendString(serializer.toJson(response));

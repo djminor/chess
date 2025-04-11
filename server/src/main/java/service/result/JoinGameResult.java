@@ -1,4 +1,7 @@
 package service.result;
 
-public record JoinGameResult(String errorMessage) {
+public sealed interface JoinGameResult {
+    record Success(String game) implements JoinGameResult {}
+    record Failure(String errorMessage) implements JoinGameResult {}
 }
+

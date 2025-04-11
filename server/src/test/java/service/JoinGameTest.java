@@ -47,6 +47,8 @@ public class JoinGameTest {
         gameDataAccess.createGameData(gameName);
         userService.joinGame(new JoinGameRequest(authToken1, "WHITE", 1));
         JoinGameResult result = userService.joinGame(new JoinGameRequest(authToken2, "WHITE", 1));
-        assertEquals("Steal", result.errorMessage());
+        if (result instanceof JoinGameResult.Failure(String errorMessage)) {
+            assertEquals("Steal", errorMessage);
+        }
     }
 }

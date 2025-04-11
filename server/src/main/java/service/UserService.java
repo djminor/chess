@@ -86,9 +86,9 @@ public class UserService {
         if (authDataAccess.findAuthData(joinGameRequest.authToken()) != null) {
             String playerColor = joinGameRequest.playerColor();
             int gameID = joinGameRequest.gameID();
-            return new JoinGameResult(gameDataAccess.setGameData(playerColor, gameID, authToken));
+            return new JoinGameResult.Success(gameDataAccess.setGameData(playerColor, gameID, authToken));
         }
-        return new JoinGameResult("Error");
+        return new JoinGameResult.Failure("Error");
     }
 
     public ClearDBResult clearDB() throws DataAccessException {
